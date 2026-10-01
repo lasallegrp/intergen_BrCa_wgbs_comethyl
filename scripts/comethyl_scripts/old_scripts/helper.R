@@ -9,30 +9,17 @@
 #   - resolveTraits()
 #   - plotPCTrait()
 #   - plotTraitDendrogramFromPC()
-#   - plotMEtraitCor()
-#   - save_me_trait_method_outputs()
-#   - plotMEtraitViolin() and related ME-trait pair helpers
-#   - collect_set_files() / read_trait_set_file() / get_set_name()
-#   - ANNOTATION HELPERS (region -> gene symbol):
-#       get_arg(), trim_or_null(), safe_dir_create(), timestamp_now(),
-#       append_log(), write_lines_safe(), stop_if_missing(),
-#       validate_file_exists(), validate_regions_df(),
-#       offline_nearest_gene(), annotate_offline_only(),
-#       annotate_regions_safe()
 #
 # NOTES
 #   - These helpers are generic and do not include project-specific
 #     trait recoding rules.
 #   - sample_info is assumed to be analysis-ready before entering the
 #     pipeline.
-#   - Annotation helpers call GenomicRanges/IRanges/AnnotationDbi/
-#     GenomeInfoDb/S4Vectors/comethyl functions via pkg::fn()
-#     namespacing, so those packages just need to be installed
-#     (not attached) in the environment sourcing this file.
 # ================================================================
 
 suppressPackageStartupMessages({
   library(openxlsx)
+  library(readxl)
   library(readr)
   library(dplyr)
   library(ggplot2)
@@ -99,8 +86,35 @@ readSampleInfo <- function(file,
   }
 
   if (ext %in% c("xlsx", "xls")) {
-    df <- openxlsx::read.xlsx(file, rowNames = TRUE)
-    df <- as.data.frame(df, stringsAsFactors = FALSE, check.names = FALSE)
+  raw_df <- readxl::read_excel(
+    path = file,
+    sheet = 1,
+    .name_repair = "minimal"
+  )
+
+  raw_df <- as.data.frame(
+    raw_df,
+    stringsAsFactors = FALSE,
+    check.names = FALSE
+  )
+
+  # First Excel column contains your sample IDs / original rownames
+  sample_ids <- trimws(as.character(raw_df[[1]]))
+
+  if (any(is.na(sample_ids) | sample_ids == "")) {
+    stop("First Excel column contains missing or blank sample IDs.")
+  }
+
+  if (anyDuplicated(sample_ids)) {
+    dup_ids <- unique(sample_ids[duplicated(sample_ids)])
+    stop(
+      "Duplicate sample IDs found in first Excel column. Examples: ",
+      paste(head(dup_ids, 10), collapse = ", ")
+    )
+  }
+
+  df <- raw_df[, -1, drop = FALSE]
+  rownames(df) <- sample_ids
 
   } else if (ext == "csv") {
     df <- read.csv(file, stringsAsFactors = FALSE, check.names = FALSE)
@@ -179,10 +193,43 @@ readSampleInfo <- function(file,
 #   found
 #   missing
 # ------------------------------------------------------------
+#old before trait files with dots and spaces
+# resolveTraits <- function(requested_traits,
+#                           available_traits,
+#                           label = "traits",
+#                           verbose = TRUE) {
+#   if (is.null(requested_traits)) {
+#     return(list(
+#       requested = character(0),
+#       found = character(0),
+#       missing = character(0)
+#     ))
+#   }
+
+#   requested_traits <- unique(trimws(requested_traits))
+#   requested_traits <- requested_traits[requested_traits != ""]
+
+#   found <- intersect(requested_traits, available_traits)
+#   missing <- setdiff(requested_traits, available_traits)
+
+#   if (verbose) {
+#     message("[resolveTraits] ", label, ": requested = ", length(requested_traits),
+#             ", found = ", length(found),
+#             ", missing = ", length(missing))
+#   }
+
+#   return(list(
+#     requested = requested_traits,
+#     found = found,
+#     missing = missing
+#   ))
+# }
+
 resolveTraits <- function(requested_traits,
                           available_traits,
                           label = "traits",
                           verbose = TRUE) {
+
   if (is.null(requested_traits)) {
     return(list(
       requested = character(0),
@@ -191,25 +238,81 @@ resolveTraits <- function(requested_traits,
     ))
   }
 
-  requested_traits <- unique(trimws(requested_traits))
-  requested_traits <- requested_traits[requested_traits != ""]
+  requested_traits <- unique(trimws(as.character(requested_traits)))
+  requested_traits <- requested_traits[nzchar(requested_traits)]
 
-  found <- intersect(requested_traits, available_traits)
-  missing <- setdiff(requested_traits, available_traits)
+  available_traits <- as.character(available_traits)
 
-  if (verbose) {
-    message("[resolveTraits] ", label, ": requested = ", length(requested_traits),
-            ", found = ", length(found),
-            ", missing = ", length(missing))
+  # Create a comparison key that ignores differences such as:
+  # spaces vs dots, parentheses, colon, slash, hyphen, etc.
+  trait_key <- function(x) {
+    x <- trimws(tolower(as.character(x)))
+    gsub("[[:space:][:punct:]]+", "", x)
   }
 
-  return(list(
+  requested_keys <- trait_key(requested_traits)
+  available_keys <- trait_key(available_traits)
+
+  # Stop if two available columns collapse to the same matching key.
+  duplicated_available <- unique(available_keys[duplicated(available_keys)])
+  if (length(duplicated_available) > 0) {
+    ambiguous <- lapply(duplicated_available, function(k) {
+      available_traits[available_keys == k]
+    })
+
+    stop(
+      "Ambiguous trait-name matching after punctuation normalization. ",
+      "Examples:\n",
+      paste(
+        vapply(
+          ambiguous,
+          function(x) paste("  ", paste(x, collapse = " | ")),
+          character(1)
+        ),
+        collapse = "\n"
+      )
+    )
+  }
+
+  found <- character(0)
+  missing <- character(0)
+
+  for (i in seq_along(requested_traits)) {
+    hit <- which(available_keys == requested_keys[i])
+
+    if (length(hit) == 1) {
+      # Return the ACTUAL name in the stats/sample-info table.
+      found <- c(found, available_traits[hit])
+    } else {
+      missing <- c(missing, requested_traits[i])
+    }
+  }
+
+  found <- unique(found)
+  missing <- unique(missing)
+
+  if (verbose) {
+    message(
+      "[resolveTraits] ", label,
+      ": requested = ", length(requested_traits),
+      ", found = ", length(found),
+      ", missing = ", length(missing)
+    )
+
+    if (length(missing) > 0) {
+      message(
+        "[resolveTraits] Missing ", label, ": ",
+        paste(head(missing, 10), collapse = ", ")
+      )
+    }
+  }
+
+  list(
     requested = requested_traits,
     found = found,
     missing = missing
-  ))
+  )
 }
-
 # ------------------------------------------------------------
 # .standardize_pc_trait_table
 # ------------------------------------------------------------
@@ -595,8 +698,8 @@ plotMEtraitCor <- function(MEtraitCor,
                            label.type = c("star", "p"), label.size = 8,
                            label.nudge_y = -0.38,
                            colors = blueWhiteRed(100, gamma = 0.9), limit = NULL,
-                           axis.text.size = 12, legend.position = c(1.08, 0.915),
-                           legend.text.size = 12, legend.title.size = 16,
+                           axis.text.size = 18, legend.position = c(1.08, 0.915),
+                           legend.text.size = 18, legend.title.size = 18,
                            colColorMargins = c(-0.7,4.21,1.2,11.07),
                            save = TRUE,
                            file = "ME_Trait_Correlation_Heatmap.pdf",
@@ -605,7 +708,7 @@ plotMEtraitCor <- function(MEtraitCor,
                            showColorBar = TRUE,
                            showColorBarLabels = TRUE,             # add names on boxes
                            colorBarLabelPos = c("inside","below"),
-                           colorBarLabelSize = 3.2,
+                           colorBarLabelSize = 4,                 # font size of the names on the color boxes
                            colorBarLabelAngle = 90,                # 90 = vertical
                            colorBarRelHeight = 0.10,               # bar height rel to heatmap
                            syncWidths = TRUE,                      # force exact alignment
@@ -714,8 +817,8 @@ plotMEtraitCor <- function(MEtraitCor,
         label = "*", color = "black", size = label.size, nudge_y = label.nudge_y
       )
   }
-  # Hide axis labels if we’re labeling the color bar (to avoid duplicates)
-  if (showColorBar && showColorBarLabels) {
+  # Hide axis labels if we’re labeling the color bar (to avoid duplicates) #i changed this if (showColorBar && showColorBarLabels) to if (showColorBar) to show the color bar even if the labels are not shown
+  if (showColorBar) {
     heatmap <- heatmap +
       ggplot2::theme(
         axis.text.x  = ggplot2::element_blank(),
@@ -812,6 +915,48 @@ plotMEtraitCor <- function(MEtraitCor,
   return(combined)
 }
 
+# #below are some of the settings that can be used to make plots
+# plotMEtraitCor(
+#   MEtraitCor,                                          # data frame with columns: module, trait, p, and cor/bicor
+
+#   moduleOrder       = 1:length(unique(MEtraitCor$module)), # order of module columns (left→right)
+#   traitOrder        = 1:length(unique(MEtraitCor$trait)),  # order of trait rows (bottom→top; reversed internally)
+
+#   topOnly           = FALSE,                           # if TRUE, plot only the nTop most significant cells
+#   nTop              = 15,                              # number of most-significant cells when topOnly=TRUE
+#   p                 = 0.05,                            # significance cutoff used for stars/p-values overlay
+
+#   label.type        = c("star", "p"),                  # overlay type; default resolves to "star"
+#   label.size        = 8,                               # size of the star or p-value text
+#   label.nudge_y     = -0.38,                           # vertical nudge for label positioning
+
+#   colors            = blueWhiteRed(100, gamma = 0.9),  # heatmap palette (min→white→max)
+#   limit             = NULL,                            # color scale limit; NULL = max(abs(cor)) auto
+
+#   axis.text.size    = 12,                              # font size of axis tick labels (modules/traits)
+#   legend.position   = c(1.08, 0.915),                  # legend position (inside plotting area)
+#   legend.text.size  = 12,                              # font size of legend tick labels
+#   legend.title.size = 16,                              # font size of legend title
+
+#   colColorMargins   = c(-0.7, 4.21, 1.2, 11.07),       # margins (lines) around the module color bar (t,r,b,l)
+#   save              = TRUE,                            # write the figure to disk
+#   file              = "ME_Trait_Correlation_Heatmap.pdf", # output filename (when save=TRUE)
+#   width             = 11,                              # output width in inches
+#   height            = 9.5,                             # output height in inches
+#   verbose           = TRUE,                            # print progress messages
+
+#   # ---- NEW labeled color-bar controls ----
+#   showColorBar        = TRUE,                          # draw the module color strip under the heatmap
+#   showColorBarLabels  = TRUE,                          # put module names on the color boxes
+#   colorBarLabelPos    = c("inside","below"),           # where to place names; default resolves to "inside"
+#   colorBarLabelSize   = 3.2,                           # font size of the names on the color boxes
+#   colorBarLabelAngle  = 90,                            # rotation of those names (90 = vertical)
+#   colorBarRelHeight   = 0.10,                          # relative height of the color bar vs heatmap
+#   syncWidths          = TRUE,                          # force exact column alignment via gtable widths
+#   autoContrastLabels  = TRUE                           # auto-pick black/white text for readability on each color
+# )
+
+
 save_me_trait_method_outputs <- function(MEtraitCor,
                                          method_name,
                                          out_dir,
@@ -894,6 +1039,49 @@ save_me_trait_method_outputs <- function(MEtraitCor,
     outcome_significant = outcome_sig_df
   ))
 }
+
+
+# #below are some of the settings that can be used to make plots
+# plotMEtraitCor(
+#   MEtraitCor,                                          # data frame with columns: module, trait, p, and cor/bicor
+
+#   moduleOrder       = 1:length(unique(MEtraitCor$module)), # order of module columns (left→right)
+#   traitOrder        = 1:length(unique(MEtraitCor$trait)),  # order of trait rows (bottom→top; reversed internally)
+
+#   topOnly           = FALSE,                           # if TRUE, plot only the nTop most significant cells
+#   nTop              = 15,                              # number of most-significant cells when topOnly=TRUE
+#   p                 = 0.05,                            # significance cutoff used for stars/p-values overlay
+
+#   label.type        = c("star", "p"),                  # overlay type; default resolves to "star"
+#   label.size        = 8,                               # size of the star or p-value text
+#   label.nudge_y     = -0.38,                           # vertical nudge for label positioning
+
+#   colors            = blueWhiteRed(100, gamma = 0.9),  # heatmap palette (min→white→max)
+#   limit             = NULL,                            # color scale limit; NULL = max(abs(cor)) auto
+
+#   axis.text.size    = 12,                              # font size of axis tick labels (modules/traits)
+#   legend.position   = c(1.08, 0.915),                  # legend position (inside plotting area)
+#   legend.text.size  = 12,                              # font size of legend tick labels
+#   legend.title.size = 16,                              # font size of legend title
+
+#   colColorMargins   = c(-0.7, 4.21, 1.2, 11.07),       # margins (lines) around the module color bar (t,r,b,l)
+#   save              = TRUE,                            # write the figure to disk
+#   file              = "ME_Trait_Correlation_Heatmap.pdf", # output filename (when save=TRUE)
+#   width             = 11,                              # output width in inches
+#   height            = 9.5,                             # output height in inches
+#   verbose           = TRUE,                            # print progress messages
+
+#   # ---- NEW labeled color-bar controls ----
+#   showColorBar        = TRUE,                          # draw the module color strip under the heatmap
+#   showColorBarLabels  = TRUE,                          # put module names on the color boxes
+#   colorBarLabelPos    = c("inside","below"),           # where to place names; default resolves to "inside"
+#   colorBarLabelSize   = 3.2,                           # font size of the names on the color boxes
+#   colorBarLabelAngle  = 90,                            # rotation of those names (90 = vertical)
+#   colorBarRelHeight   = 0.10,                          # relative height of the color bar vs heatmap
+#   syncWidths          = TRUE,                          # force exact column alignment via gtable widths
+#   autoContrastLabels  = TRUE                           # auto-pick black/white text for readability on each color
+# )
+
 
 # ============================================================
 # Shared helpers for ME-trait pair plots
@@ -1097,744 +1285,4 @@ read_trait_set_file <- function(file) {
 
 get_set_name <- function(file) {
   tools::file_path_sans_ext(basename(file))
-}
-
-# ================================================================
-# ANNOTATION HELPERS (region -> gene symbol, genomic location, CpG context)
-#
-# Added for scripts that annotate comethyl regions with nearest
-# gene symbols, e.g. 12a_annotate_modules.R (module-level regions)
-# and 12c_annotate_region_matrix.R (all filtered regions,
-# independent of module assignment).
-#
-# annotate_offline_only() / annotate_regions_safe() now also add,
-# when possible:
-#   genomic_location  Promoter / 5UTR / 3UTR / Exon / Intron /
-#                     Downstream / Intergenic, via ChIPseeker +
-#                     a local TxDb (no internet needed at call time,
-#                     only for the one-time package install).
-#   cpg_context       Island / Shore / Shelf / OpenSea, via a local
-#                     UCSC CpG island table. Download once from ANY
-#                     internet-connected machine (your laptop is
-#                     fine) and pass its path as cpg_island_file:
-#                       https://hgdownload.soe.ucsc.edu/goldenPath/hg38/database/cpgIslandExt.txt.gz
-#                     If cpg_island_file is NULL, this column is
-#                     skipped (no error).
-#
-# Calls GenomicRanges/IRanges/GenomeInfoDb/S4Vectors/AnnotationDbi/
-# ChIPseeker/comethyl functions via pkg::fn() namespacing throughout,
-# so those packages only need to be installed, not attached, in
-# whatever script sources this file.
-# ================================================================
-
-# ================================================================
-# REPRODUCIBILITY HELPERS
-#
-# write_session_info(): captures exact R + package versions and the
-#   git commit hash of the pipeline code, so a given run_log.txt can
-#   be tied to the exact code + environment that produced it.
-# file_checksum(): md5 of an input file, so you can prove downstream
-#   which exact copy of e.g. Filtered_Regions.txt or cpgIslandExt.txt
-#   was used, independent of the path (which can drift/get renamed).
-# ================================================================
-
-write_session_info <- function(file, extra_files = NULL) {
-  git_hash <- tryCatch(
-    system2("git", c("rev-parse", "HEAD"), stdout = TRUE, stderr = FALSE),
-    error = function(e) NA_character_
-  )
-  if (length(git_hash) == 0 || !nzchar(git_hash)) git_hash <- "(not a git repo or git unavailable)"
-
-  git_dirty <- tryCatch({
-    status <- system2("git", c("status", "--porcelain"), stdout = TRUE, stderr = FALSE)
-    if (length(status) == 0) "clean" else "DIRTY (uncommitted changes present)"
-  }, error = function(e) "(unknown)")
-
-  lines <- c(
-    paste0("timestamp\t", timestamp_now()),
-    paste0("git_commit\t", git_hash[1]),
-    paste0("git_status\t", git_dirty),
-    ""
-  )
-
-  if (!is.null(extra_files)) {
-    lines <- c(lines, "# Input file checksums (md5)", "")
-    for (nm in names(extra_files)) {
-      f <- extra_files[[nm]]
-      if (!is.null(f) && file.exists(f)) {
-        lines <- c(lines, paste0(nm, "\t", f, "\t", tools::md5sum(f)))
-      } else {
-        lines <- c(lines, paste0(nm, "\t", ifelse(is.null(f), "(not provided)", f), "\t(file not found)"))
-      }
-    }
-    lines <- c(lines, "")
-  }
-
-  lines <- c(lines, "# sessionInfo()", "", utils::capture.output(print(sessionInfo())))
-
-  write_lines_safe(lines, file)
-}
-
-file_checksum <- function(path) {
-  if (is.null(path) || !file.exists(path)) return(NA_character_)
-  unname(tools::md5sum(path))
-}
-
-# ------------------------------------------------------------
-# CLI argument helpers
-# ------------------------------------------------------------
-get_arg <- function(flag, default = NULL) {
-  args <- commandArgs(trailingOnly = TRUE)
-  idx <- match(flag, args)
-  if (!is.na(idx) && idx < length(args)) return(args[idx + 1])
-  default
-}
-
-trim_or_null <- function(x) {
-  if (is.null(x) || is.na(x)) return(NULL)
-  x <- trimws(x)
-  if (!nzchar(x)) return(NULL)
-  x
-}
-
-# ------------------------------------------------------------
-# Filesystem / logging helpers
-# ------------------------------------------------------------
-safe_dir_create <- function(path) {
-  if (!dir.exists(path)) dir.create(path, recursive = TRUE, showWarnings = FALSE)
-}
-
-timestamp_now <- function() {
-  format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-}
-
-append_log <- function(logfile, ...) {
-  txt <- paste0("[", timestamp_now(), "] ", paste0(..., collapse = ""))
-  cat(txt, "\n")
-  cat(txt, "\n", file = logfile, append = TRUE)
-}
-
-write_lines_safe <- function(x, file) {
-  writeLines(as.character(x), con = file, useBytes = TRUE)
-}
-
-# ------------------------------------------------------------
-# Validation helpers
-# ------------------------------------------------------------
-stop_if_missing <- function(x, label) {
-  if (is.null(x) || !nzchar(x)) stop("Missing required argument: ", label, call. = FALSE)
-}
-
-validate_file_exists <- function(path, label) {
-  if (!file.exists(path)) stop(label, " not found: ", path, call. = FALSE)
-}
-
-# req_cols lets callers relax the requirement (e.g. drop "module"
-# for matrix-level annotation where there is no module assignment yet)
-validate_regions_df <- function(regions, source_label = "regions",
-                                 req_cols = c("RegionID", "chr", "start", "end", "module")) {
-  missing_cols <- setdiff(req_cols, colnames(regions))
-  if (length(missing_cols) > 0) {
-    stop(
-      source_label, " is missing required columns: ",
-      paste(missing_cols, collapse = ", "),
-      call. = FALSE
-    )
-  }
-}
-
-# ------------------------------------------------------------
-# Extract a regions data.frame (RegionID, chr, start, end, module)
-# from a comethyl module RDS object -- shared by 12a (module-level
-# annotation) and 12c (merging module assignment into per-variant
-# region x sample tables).
-# ------------------------------------------------------------
-extract_regions_from_module_object <- function(obj, label = "module object") {
-  if (is.list(obj) && "regions" %in% names(obj)) {
-    regions <- obj$regions
-  } else if (is.data.frame(obj)) {
-    regions <- obj
-  } else {
-    stop(
-      "Could not extract regions from ", label,
-      ". Expected either a list with $regions or a data.frame.",
-      call. = FALSE
-    )
-  }
-
-  validate_regions_df(regions, label)
-  regions
-}
-
-# ------------------------------------------------------------
-# Genome -> annotation package resolution
-#
-# Mirrors DMRichR::annotationDatabases()'s genome -> TxDb/org.db
-# mapping, so --genome actually determines which packages get used
-# instead of them being hardcoded to hg38/human. Two deliberate
-# differences from DMRichR's version:
-#   - No BSgenome/sequence loading -- nothing here needs sequence,
-#     only transcript models (TxDb) and gene ID mappings (org.db).
-#   - No live BiocManager::install() of missing packages. A SLURM
-#     job silently installing packages mid-run is exactly the kind
-#     of non-reproducible, network-dependent behavior this pipeline
-#     has been fixed to avoid (see the GREAT/rGREAT saga). If a
-#     required package isn't installed, this errors with a clear
-#     message telling you what to add to the pixi environment,
-#     rather than trying to fetch it at runtime.
-# ------------------------------------------------------------
-resolve_annotation_packages <- function(genome) {
-  mapping <- list(
-    hg38     = list(txdb = "TxDb.Hsapiens.UCSC.hg38.knownGene",      annoDb = "org.Hs.eg.db"),
-    hg19     = list(txdb = "TxDb.Hsapiens.UCSC.hg19.knownGene",      annoDb = "org.Hs.eg.db"),
-    mm10     = list(txdb = "TxDb.Mmusculus.UCSC.mm10.knownGene",     annoDb = "org.Mm.eg.db"),
-    mm9      = list(txdb = "TxDb.Mmusculus.UCSC.mm9.knownGene",      annoDb = "org.Mm.eg.db"),
-    rheMac10 = list(txdb = "TxDb.Mmulatta.UCSC.rheMac10.refGene",    annoDb = "org.Mmu.eg.db"),
-    rheMac8  = list(txdb = "TxDb.Mmulatta.UCSC.rheMac8.refGene",     annoDb = "org.Mmu.eg.db"),
-    rn6      = list(txdb = "TxDb.Rnorvegicus.UCSC.rn6.refGene",      annoDb = "org.Rn.eg.db"),
-    danRer11 = list(txdb = "TxDb.Drerio.UCSC.danRer11.refGene",      annoDb = "org.Dr.eg.db"),
-    galGal6  = list(txdb = "TxDb.Ggallus.UCSC.galGal6.refGene",      annoDb = "org.Gg.eg.db"),
-    bosTau9  = list(txdb = "TxDb.Btaurus.UCSC.bosTau9.refGene",      annoDb = "org.Bt.eg.db"),
-    panTro6  = list(txdb = "TxDb.Ptroglodytes.UCSC.panTro6.refGene", annoDb = "org.Pt.eg.db"),
-    dm6      = list(txdb = "TxDb.Dmelanogaster.UCSC.dm6.ensGene",    annoDb = "org.Dm.eg.db"),
-    susScr11 = list(txdb = "TxDb.Sscrofa.UCSC.susScr11.refGene",     annoDb = "org.Ss.eg.db"),
-    canFam3  = list(txdb = "TxDb.Cfamiliaris.UCSC.canFam3.refGene",  annoDb = "org.Cf.eg.db"),
-    TAIR10   = list(txdb = "TxDb.Athaliana.BioMart.plantsmart28",    annoDb = "org.At.tair.db"),
-    TAIR9    = list(txdb = "TxDb.Athaliana.BioMart.plantsmart28",    annoDb = "org.At.tair.db")
-  )
-
-  if (!genome %in% names(mapping)) {
-    stop(
-      "genome '", genome, "' is not supported. Choose one of: ",
-      paste(names(mapping), collapse = ", "), " [case sensitive].",
-      call. = FALSE
-    )
-  }
-
-  mapping[[genome]]
-}
-
-# ------------------------------------------------------------
-# Annotation core
-# ------------------------------------------------------------
-offline_nearest_gene <- function(gr, genome = "hg38", verbose = TRUE) {
-  pkgs <- resolve_annotation_packages(genome)
-  txdb_pkg  <- pkgs$txdb
-  annoDb_pkg <- pkgs$annoDb
-
-  if (!requireNamespace(annoDb_pkg, quietly = TRUE)) {
-    stop(annoDb_pkg, " is required for offline annotation of genome '", genome,
-         "'. Install it in the pixi environment.", call. = FALSE)
-  }
-
-  # hg38 keeps its existing EnsDb.Hsapiens.v86-preferred path unchanged
-  # (matches prior validated behavior exactly). Every other genome goes
-  # straight through the genome-resolved TxDb + org.db path.
-  use_ensdb <- genome == "hg38" && requireNamespace("EnsDb.Hsapiens.v86", quietly = TRUE)
-
-  if (use_ensdb) {
-    if (verbose) message("[offline] Using EnsDb.Hsapiens.v86")
-    edb <- EnsDb.Hsapiens.v86::EnsDb.Hsapiens.v86
-    seqs <- unique(as.character(GenomeInfoDb::seqnames(gr)))
-    seqs <- seqs[seqs %in% GenomeInfoDb::seqlevels(edb)]
-
-    genes <- ensembldb::genes(edb, filter = AnnotationFilter::SeqNameFilter(seqs))
-    ggr <- GenomicRanges::GRanges(genes)
-
-    ens_ids <- genes$gene_id
-    annoDb_obj <- get(annoDb_pkg, envir = asNamespace(annoDb_pkg))
-    map <- AnnotationDbi::select(
-      annoDb_obj,
-      keys = ens_ids,
-      keytype = "ENSEMBL",
-      columns = c("SYMBOL", "ENTREZID")
-    )
-
-    ggr$SYMBOL   <- map$SYMBOL[match(genes$gene_id, map$ENSEMBL)]
-    ggr$ENTREZID <- map$ENTREZID[match(genes$gene_id, map$ENSEMBL)]
-
-  } else {
-    if (!requireNamespace(txdb_pkg, quietly = TRUE)) {
-      stop(txdb_pkg, " is required for offline annotation of genome '", genome,
-           "'. Install it in the pixi environment.", call. = FALSE)
-    }
-    if (verbose) message("[offline] Using ", txdb_pkg)
-    txdb <- get(txdb_pkg, envir = asNamespace(txdb_pkg))
-    ggr  <- GenomicFeatures::genes(txdb)
-
-    annoDb_obj <- get(annoDb_pkg, envir = asNamespace(annoDb_pkg))
-    map <- AnnotationDbi::select(
-      annoDb_obj,
-      keys = ggr$gene_id,
-      keytype = "ENTREZID",
-      columns = c("SYMBOL")
-    )
-
-    ggr$ENTREZID <- ggr$gene_id
-    ggr$SYMBOL   <- map$SYMBOL[match(ggr$ENTREZID, map$ENTREZID)]
-  }
-
-  hit <- GenomicRanges::distanceToNearest(gr, ggr, ignore.strand = TRUE)
-  ng  <- ggr[S4Vectors::subjectHits(hit)]
-
-  data.frame(
-    chr = as.character(GenomeInfoDb::seqnames(gr))[S4Vectors::queryHits(hit)],
-    start = as.integer(S4Vectors::start(gr))[S4Vectors::queryHits(hit)],
-    end = as.integer(S4Vectors::end(gr))[S4Vectors::queryHits(hit)],
-    gene_symbol = as.character(ng$SYMBOL),
-    gene_entrezID = as.character(ng$ENTREZID),
-    stringsAsFactors = FALSE
-  )
-}
-
-# ------------------------------------------------------------
-# CpG island context (island / shore / shelf / open sea) --
-# replicates DMRichR::getCpGs()'s exact algorithm (island -> stretch
-# 4000bp -> setdiff for shores -> stretch again -> setdiff for
-# shelves -> gaps for open sea) but reads the CpG island track from
-# a LOCAL cached file instead of a live download every call, so
-# results are fixed and reproducible.
-#
-# cpg_island_file: local UCSC cpgIslandExt table. Download once from
-# ANY machine with internet (your laptop is fine -- no cluster
-# internet required) and scp it over:
-#
-#   https://hgdownload.soe.ucsc.edu/goldenPath/hg38/database/cpgIslandExt.txt.gz
-#
-# Then point --cpg_island_file at the local (gzipped is fine) copy.
-# Uses only base GenomicRanges (resize/setdiff/gaps) -- no plyranges
-# dependency, matching the "replicate locally" choice.
-# ------------------------------------------------------------
-build_cpg_annotations <- function(cpg_island_file, shore_bp = 2000, shelf_bp = 2000, verbose = TRUE) {
-  validate_file_exists(cpg_island_file, "cpg_island_file")
-  cols <- c("bin", "chrom", "chromStart", "chromEnd", "name", "length",
-            "cpgNum", "gcNum", "perCpg", "perGc", "obsExp")
-  df <- read.table(cpg_island_file, sep = "\t", stringsAsFactors = FALSE,
-                    col.names = cols, quote = "")
-  if (verbose) message("[cpg] Loaded ", nrow(df), " CpG islands from: ", cpg_island_file)
-
-  # UCSC chromStart is 0-based half-open; GRanges is 1-based inclusive
-  islands <- GenomicRanges::GRanges(
-    seqnames = df$chrom,
-    ranges = IRanges::IRanges(start = df$chromStart + 1, end = df$chromEnd)
-  )
-  islands <- GenomeInfoDb::keepStandardChromosomes(islands, pruning.mode = "coarse")
-
-  if (verbose) message("[cpg] Building CpG shores...")
-  # resize(..., fix="center") with width += 2*shore_bp is equivalent to
-  # DMRichR's plyranges::stretch(shore_bp*2) (extends shore_bp on each side)
-  shores_raw <- GenomicRanges::resize(
-    islands, width = GenomicRanges::width(islands) + 2 * shore_bp, fix = "center"
-  )
-  shores_raw <- GenomicRanges::trim(shores_raw)
-  shores <- GenomicRanges::setdiff(shores_raw, islands)
-
-  if (verbose) message("[cpg] Building CpG shelves...")
-  shelves_raw <- GenomicRanges::resize(
-    shores, width = GenomicRanges::width(shores) + 2 * shelf_bp, fix = "center"
-  )
-  shelves_raw <- GenomicRanges::trim(shelves_raw)
-  shelves <- GenomicRanges::setdiff(shelves_raw, islands)
-  shelves <- GenomicRanges::setdiff(shelves, shores)
-
-  if (verbose) message("[cpg] Building open sea (inter-CGI)...")
-  inter_cgi <- GenomicRanges::gaps(GenomicRanges::sort(c(islands, shores, shelves)))
-  # gaps() also returns the space before the first range / after the last on
-  # each strand-agnostic "*" track; keep only ranges actually on real chroms
-  inter_cgi <- inter_cgi[GenomeInfoDb::seqnames(inter_cgi) %in% GenomeInfoDb::seqnames(islands)]
-
-  islands$type <- "islands"
-  shores$type  <- "shores"
-  shelves$type <- "shelves"
-  inter_cgi$type <- "inter"
-
-  cpgs <- GenomicRanges::sort(c(islands, shores, shelves, inter_cgi))
-
-  if (verbose) {
-    message("[cpg] islands=", length(islands), " shores=", length(shores),
-            " shelves=", length(shelves), " inter=", length(inter_cgi))
-  }
-
-  cpgs
-}
-
-# Four independent Yes/No overlap flags, matching DMRichR's
-# CpG.Island / CpG.Shore / CpG.Shelf / Open.Sea columns exactly
-# (a region can flag "Yes" in more than one if it spans categories).
-classify_cpg_flags <- function(gr, cpgs, verbose = TRUE) {
-  islands <- cpgs[cpgs$type == "islands"]
-  shores  <- cpgs[cpgs$type == "shores"]
-  shelves <- cpgs[cpgs$type == "shelves"]
-  inter   <- cpgs[cpgs$type == "inter"]
-
-  flags <- data.frame(
-    CpG.Island = ifelse(GenomicRanges::countOverlaps(gr, islands) > 0, "Yes", "No"),
-    CpG.Shore  = ifelse(GenomicRanges::countOverlaps(gr, shores)  > 0, "Yes", "No"),
-    CpG.Shelf  = ifelse(GenomicRanges::countOverlaps(gr, shelves) > 0, "Yes", "No"),
-    Open.Sea   = ifelse(GenomicRanges::countOverlaps(gr, inter)   > 0, "Yes", "No"),
-    stringsAsFactors = FALSE
-  )
-
-  if (verbose) {
-    message("[cpg] Island=", sum(flags$CpG.Island == "Yes"),
-            " Shore=", sum(flags$CpG.Shore == "Yes"),
-            " Shelf=", sum(flags$CpG.Shelf == "Yes"),
-            " OpenSea=", sum(flags$Open.Sea == "Yes"))
-  }
-
-  flags
-}
-
-# Convenience single-label column derived from the 4 flags above,
-# with an explicit, documented precedence rule (Island > Shore >
-# Shelf > OpenSea) for anywhere you want one category per region
-# (e.g. a single heatmap axis). The 4 flags above remain the
-# authoritative, DMRichR-matching columns.
-derive_cpg_context_label <- function(flags_df) {
-  with(flags_df, ifelse(CpG.Island == "Yes", "Island",
-                  ifelse(CpG.Shore  == "Yes", "Shore",
-                  ifelse(CpG.Shelf  == "Yes", "Shelf", "OpenSea"))))
-}
-
-# ------------------------------------------------------------
-# Genomic location (promoter / 5' UTR / exon / intron / 3' UTR /
-# downstream / intergenic) -- fully local via TxDb, no internet
-# needed at call time (only the one-time package install does).
-# Matches DMRichR::annotateRegions()'s ChIPseeker call (overlap =
-# "all") and its category-string simplification exactly, so
-# genomic_location strings are byte-identical to DMRichR's own
-# "annotation" column (e.g. "Promoter", "5' UTR", "Distal Intergenic").
-# ------------------------------------------------------------
-annotate_genomic_location <- function(gr, genome = "hg38", txdb_pkg = NULL,
-                                      tss_region = c(-2000, 200), verbose = TRUE) {
-  if (is.null(txdb_pkg)) txdb_pkg <- resolve_annotation_packages(genome)$txdb
-
-  n_input <- length(gr)
-
-  empty_result <- function() {
-    data.frame(
-      chr = as.character(GenomeInfoDb::seqnames(gr)),
-      start = as.integer(GenomicRanges::start(gr)),
-      end = as.integer(GenomicRanges::end(gr)),
-      genomic_location = NA_character_,
-      stringsAsFactors = FALSE
-    )
-  }
-
-  if (!requireNamespace("ChIPseeker", quietly = TRUE)) {
-    message("[genomic_location] SKIPPED -- ChIPseeker not installed/loadable in this environment. ",
-            "Install via: pixi run Rscript -e \"BiocManager::install('ChIPseeker')\"")
-    return(empty_result())
-  }
-  if (!requireNamespace(txdb_pkg, quietly = TRUE)) {
-    message("[genomic_location] SKIPPED -- ", txdb_pkg, " not installed/loadable in this environment.")
-    return(empty_result())
-  }
-
-  txdb <- get(txdb_pkg, envir = asNamespace(txdb_pkg))
-
-  if (verbose) message("[genomic_location] Running ChIPseeker::annotatePeak(overlap = \"all\") with ", txdb_pkg)
-  peakAnno <- ChIPseeker::annotatePeak(
-    gr, TxDb = txdb, tssRegion = tss_region, overlap = "all", verbose = FALSE
-  )
-  anno_df <- as.data.frame(peakAnno)
-
-  # DMRichR-matching simplification: strip everything after " (" --
-  # same regex as DMRichR::annotateRegions()'s
-  # dplyr::mutate(annotation = gsub(" \\(.*","", annotation))
-  anno_df$genomic_location <- gsub(" \\(.*", "", as.character(anno_df$annotation))
-
-  # Join back by chr/start/end -- the same proven join key
-  # offline_nearest_gene() already uses successfully for gene_symbol.
-  # ChIPseeker's as.data.frame() output is guaranteed to carry
-  # seqnames/start/end (it IS the GRanges), unlike a custom mcol like
-  # RegionID, which isn't reliably preserved under that exact name.
-  out <- anno_df %>%
-    dplyr::rename(chr = seqnames) %>%
-    dplyr::mutate(chr = as.character(chr)) %>%
-    dplyr::select(chr, start, end, genomic_location) %>%
-    dplyr::distinct(chr, start, end, .keep_all = TRUE)
-
-  if (verbose) message("[genomic_location] ChIPseeker returned ", nrow(out),
-                       " unique region rows for ", n_input, " input regions")
-
-  n_missing <- n_input - sum(
-    paste(as.character(GenomeInfoDb::seqnames(gr)), GenomicRanges::start(gr), GenomicRanges::end(gr)) %in%
-    paste(out$chr, out$start, out$end)
-  )
-  if (n_missing > 0) {
-    message("[genomic_location] NOTE -- ", n_missing, " of ", n_input,
-            " regions got no genomic_location (likely on a chromosome/scaffold ",
-            "not present in ", txdb_pkg, "). These will have genomic_location = NA after joining.")
-  }
-
-  out
-}
-
-annotate_offline_only <- function(regions_df, genome = "hg38", file_txt = NULL, verbose = TRUE,
-                                  add_genomic_location = TRUE,
-                                  txdb_pkg = NULL,
-                                  tss_region = c(-2000, 200),
-                                  cpg_island_file = NULL,
-                                  shore_bp = 2000, shelf_bp = 2000) {
-  validate_regions_df(regions_df, "regions_df", req_cols = c("RegionID", "chr", "start", "end"))
-
-  gr <- GenomicRanges::GRanges(
-    seqnames = regions_df$chr,
-    ranges   = IRanges::IRanges(start = regions_df$start, end = regions_df$end),
-    RegionID = regions_df$RegionID
-  )
-
-  ng <- offline_nearest_gene(gr, genome = genome, verbose = verbose)
-
-  out <- regions_df %>%
-    dplyr::left_join(
-      ng %>% dplyr::select(chr, start, end, gene_symbol, gene_entrezID),
-      by = c("chr", "start", "end")
-    ) %>%
-    dplyr::mutate(
-      gene_description = NA_character_,
-      gene_ensemblID   = NA_character_
-    )
-
-  if (isTRUE(add_genomic_location)) {
-    loc_df <- annotate_genomic_location(
-      gr, genome = genome, txdb_pkg = txdb_pkg, tss_region = tss_region, verbose = verbose
-    )
-    out <- out %>% dplyr::left_join(loc_df, by = c("chr", "start", "end"))
-    n_missing_loc <- sum(is.na(out$genomic_location))
-    if (verbose) message("[genomic_location] ", nrow(out) - n_missing_loc, " of ", nrow(out),
-                         " regions have a genomic_location after join")
-  }
-
-  if (!is.null(cpg_island_file)) {
-    cpgs <- build_cpg_annotations(cpg_island_file, shore_bp = shore_bp, shelf_bp = shelf_bp, verbose = verbose)
-    flags <- classify_cpg_flags(gr, cpgs, verbose = verbose)
-    out <- cbind(out, flags)
-    out$cpg_context <- derive_cpg_context_label(flags)
-  } else if (verbose) {
-    message("[cpg] No cpg_island_file provided -- skipping CpG.Island/Shore/Shelf/Open.Sea/cpg_context columns.")
-  }
-
-  if (!is.null(file_txt) && nzchar(file_txt)) {
-    write.table(out, file = file_txt, sep = "\t", quote = FALSE, row.names = FALSE)
-  }
-
-  out
-}
-
-# req_cols passed through so matrix-level callers (no "module" column)
-# don't get rejected by validation. add_genomic_location/cpg_island_file
-# etc. are forwarded to annotate_offline_only() when the offline path
-# runs (either --annotation_mode offline, or as a GREAT fallback under
-# "auto").
-annotate_regions_safe <- function(regions_df,
-                                  genome = "hg38",
-                                  annotation_mode = c("auto", "great", "offline"),
-                                  file_txt = NULL,
-                                  verbose = TRUE,
-                                  req_cols = c("RegionID", "chr", "start", "end", "module"),
-                                  add_genomic_location = TRUE,
-                                  txdb_pkg = NULL,
-                                  tss_region = c(-2000, 200),
-                                  cpg_island_file = NULL,
-                                  shore_bp = 2000, shelf_bp = 2000) {
-  annotation_mode <- match.arg(annotation_mode)
-  validate_regions_df(regions_df, "regions_df", req_cols = req_cols)
-
-  offline_args <- list(
-    regions_df = regions_df, genome = genome, file_txt = file_txt, verbose = verbose,
-    add_genomic_location = add_genomic_location, txdb_pkg = txdb_pkg,
-    tss_region = tss_region, cpg_island_file = cpg_island_file,
-    shore_bp = shore_bp, shelf_bp = shelf_bp
-  )
-
-  if (annotation_mode == "offline") {
-    return(do.call(annotate_offline_only, offline_args))
-  }
-
-  if (annotation_mode == "great") {
-    if (verbose) message("[annotate] Using comethyl::annotateModule() only")
-    return(comethyl::annotateModule(regions_df, genome = genome, file = file_txt))
-  }
-
-  tryCatch(
-    {
-      if (verbose) message("[annotate] Trying comethyl::annotateModule()")
-      comethyl::annotateModule(regions_df, genome = genome, file = file_txt)
-    },
-    error = function(e) {
-      message("[annotate] GREAT-based annotation failed: ", conditionMessage(e))
-      message("[annotate] Falling back to offline nearest-gene annotation.")
-      do.call(annotate_offline_only, offline_args)
-    }
-  )
-}
-
-# ================================================================
-# MODULE ANNOTATION ENRICHMENT (genic + CpG), per module
-#
-# Mirrors DMRichR::DMRichGenic() / DMRichR::DMRichCpG(), but instead
-# of testing "significant DMRs" vs "background regions", each
-# comethyl module is tested against all OTHER regions (2x2 Fisher's
-# exact test per module x category). FDR-adjusted across all tests
-# within each function call.
-#
-# Requires annotated_regions to already have a "module" column and
-# (for genic) a "genomic_location" column, or (for CpG) the
-# CpG.Island/CpG.Shore/CpG.Shelf/Open.Sea flag columns -- i.e. the
-# output of annotate_offline_only()/annotate_regions_safe() with
-# add_genomic_location = TRUE and cpg_island_file provided.
-# ================================================================
-
-moduleGenicEnrichment <- function(annotated_regions,
-                                  module_col = "module",
-                                  location_col = "genomic_location",
-                                  categories = c("Promoter", "5' UTR", "Exon", "Intron",
-                                                 "3' UTR", "Downstream", "Distal Intergenic"),
-                                  exclude_modules = "grey",
-                                  verbose = TRUE) {
-  if (!location_col %in% colnames(annotated_regions)) {
-    stop("annotated_regions is missing '", location_col, "' -- ",
-         "re-run annotation with add_genomic_location = TRUE.", call. = FALSE)
-  }
-
-  df <- annotated_regions
-  if (!is.null(exclude_modules)) df <- df[!(df[[module_col]] %in% exclude_modules), , drop = FALSE]
-  modules <- sort(unique(as.character(df[[module_col]])))
-
-  if (verbose) message("[enrich] Genic enrichment: ", length(modules), " modules x ", length(categories), " categories")
-
-  rows <- list()
-  for (mod in modules) {
-    in_mod <- df[[module_col]] == mod
-    for (cat in categories) {
-      has_cat <- !is.na(df[[location_col]]) & grepl(cat, df[[location_col]], fixed = TRUE)
-      a <- sum(in_mod & has_cat);  b <- sum(in_mod & !has_cat)
-      c <- sum(!in_mod & has_cat); d <- sum(!in_mod & !has_cat)
-      ft <- tryCatch(stats::fisher.test(matrix(c(a, c, b, d), nrow = 2)), error = function(e) NULL)
-      if (is.null(ft)) next
-      rows[[length(rows) + 1]] <- data.frame(
-        module = mod, category = cat, n_in_module = a,
-        OR = unname(ft$estimate), CIlower = ft$conf.int[1], CIupper = ft$conf.int[2],
-        p = ft$p.value, stringsAsFactors = FALSE
-      )
-    }
-  }
-
-  if (length(rows) == 0) {
-    stop("moduleGenicEnrichment(): every module x category Fisher's test failed -- ",
-         "check for NA/unexpected values in '", location_col, "'.", call. = FALSE)
-  }
-
-  out <- do.call(rbind, rows)
-  out$fdr <- stats::p.adjust(out$p, method = "fdr")
-  out
-}
-
-moduleCpGEnrichment <- function(annotated_regions,
-                                module_col = "module",
-                                cpg_cols = c(CpG.Island = "Island", CpG.Shore = "Shore",
-                                            CpG.Shelf = "Shelf", Open.Sea = "OpenSea"),
-                                exclude_modules = "grey",
-                                verbose = TRUE) {
-  missing_cols <- setdiff(names(cpg_cols), colnames(annotated_regions))
-  if (length(missing_cols) > 0) {
-    stop("annotated_regions is missing CpG flag column(s): ", paste(missing_cols, collapse = ", "),
-         " -- re-run annotation with cpg_island_file provided.", call. = FALSE)
-  }
-
-  df <- annotated_regions
-  if (!is.null(exclude_modules)) df <- df[!(df[[module_col]] %in% exclude_modules), , drop = FALSE]
-  modules <- sort(unique(as.character(df[[module_col]])))
-
-  if (verbose) message("[enrich] CpG enrichment: ", length(modules), " modules x ", length(cpg_cols), " categories")
-
-  rows <- list()
-  for (mod in modules) {
-    in_mod <- df[[module_col]] == mod
-    for (col in names(cpg_cols)) {
-      has_cat <- !is.na(df[[col]]) & df[[col]] == "Yes"
-      a <- sum(in_mod & has_cat);  b <- sum(in_mod & !has_cat)
-      c <- sum(!in_mod & has_cat); d <- sum(!in_mod & !has_cat)
-      ft <- tryCatch(stats::fisher.test(matrix(c(a, c, b, d), nrow = 2)), error = function(e) NULL)
-      if (is.null(ft)) next
-      rows[[length(rows) + 1]] <- data.frame(
-        module = mod, category = unname(cpg_cols[col]), n_in_module = a,
-        OR = unname(ft$estimate), CIlower = ft$conf.int[1], CIupper = ft$conf.int[2],
-        p = ft$p.value, stringsAsFactors = FALSE
-      )
-    }
-  }
-
-  if (length(rows) == 0) {
-    stop("moduleCpGEnrichment(): every module x category Fisher's test failed -- ",
-         "check for NA/unexpected values in the CpG flag columns.", call. = FALSE)
-  }
-
-  out <- do.call(rbind, rows)
-  out$fdr <- stats::p.adjust(out$p, method = "fdr")
-  out
-}
-
-# ------------------------------------------------------------
-# Module x category enrichment heatmap: color = log2(OR)
-# (blue = depleted, red = enriched), "*" = FDR-significant.
-# Same visual language as plotMEtraitCor()/plotPCTrait() elsewhere
-# in this file, so it reads consistently alongside the rest of the
-# pipeline's figures.
-# ------------------------------------------------------------
-plotModuleAnnotationEnrichment <- function(enrichment_df,
-                                           title = "Module Annotation Enrichment",
-                                           p_cut = 0.05,
-                                           moduleOrder = NULL,
-                                           categoryOrder = NULL,
-                                           colors = WGCNA::blueWhiteRed(100, gamma = 0.9),
-                                           save = TRUE,
-                                           file = "Module_Annotation_Enrichment.pdf",
-                                           width = NULL, height = NULL,
-                                           base_size = 11,
-                                           axis.text.size = 8,
-                                           star.size = 4,
-                                           verbose = TRUE) {
-  df <- enrichment_df
-  df$log2OR <- log2(df$OR)
-  df$log2OR[!is.finite(df$log2OR)] <- NA  # OR of 0 or Inf from small/zero counts
-  df$significant <- df$fdr < p_cut & !is.na(df$fdr)
-
-  if (is.null(moduleOrder)) moduleOrder <- sort(unique(df$module))
-  if (is.null(categoryOrder)) categoryOrder <- unique(df$category)
-
-  df$module   <- factor(df$module, levels = moduleOrder)
-  df$category <- factor(df$category, levels = rev(categoryOrder))
-
-  limit <- suppressWarnings(max(abs(df$log2OR), na.rm = TRUE))
-  if (!is.finite(limit) || limit == 0) limit <- 1
-
-  nX <- length(levels(df$module))
-  nY <- length(levels(df$category))
-  if (is.null(width))  width  <- max(6, min(24, nX * 0.18 + 3))
-  if (is.null(height)) height <- max(3, min(10, nY * 0.35 + 2))
-
-  p <- ggplot2::ggplot(df, ggplot2::aes(x = module, y = category)) +
-    ggplot2::geom_tile(ggplot2::aes(fill = log2OR)) +
-    ggplot2::scale_fill_gradientn("log2(OR)", colors = colors, limits = c(-limit, limit), na.value = "grey85") +
-    ggplot2::geom_text(ggplot2::aes(label = ifelse(significant, "*", "")), size = star.size) +
-    ggplot2::theme_bw(base_size = base_size) +
-    ggplot2::theme(
-      axis.title = ggplot2::element_blank(),
-      axis.text.x = ggplot2::element_text(size = axis.text.size, angle = 90, vjust = 0.5, hjust = 1),
-      axis.text.y = ggplot2::element_text(size = axis.text.size),
-      panel.grid = ggplot2::element_blank()
-    ) +
-    ggplot2::labs(title = title)
-
-  if (isTRUE(save)) {
-    dir.create(dirname(file), recursive = TRUE, showWarnings = FALSE)
-    ggplot2::ggsave(filename = file, plot = p, dpi = 600,
-                    width = width, height = height, units = "in", limitsize = FALSE)
-    if (verbose) message("[plot] Saved: ", file)
-  }
-
-  p
 }

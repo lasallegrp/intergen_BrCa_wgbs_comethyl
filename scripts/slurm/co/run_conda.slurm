@@ -301,14 +301,17 @@ Rscript /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_Georg
   --categorical_height 7 \
   --top_n_pairs 50
 
-# #script 12a
-# Rscript /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/scripts/comethyl_scripts/12a_annotate_modules.R \
-#   --project_root /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George \
-#   --sample_info /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_thesis.xlsx \
-#   --modules_v1 /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/08_module_and_sample_diagnostics/cov3_75pct/covMin10_methSD0p07/v1_all_pcs/Modules_for_downstream.rds \
-#   --modules_v2 /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/08_module_and_sample_diagnostics/cov3_75pct/covMin10_methSD0p07/v2_exclude_protected_pcs/Modules_for_downstream.rds \
-#   --genome hg38 \
-#   --annotation_mode auto
+#script 12a
+Rscript /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/scripts/comethyl_scripts/12a_annotate_modules.R \
+  --project_root /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George \
+  --sample_info /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_thesis.xlsx \
+  --modules_v1 /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/08_module_and_sample_diagnostics/cov3_75pct/covMin10_methSD0p07/v1_all_pcs/Modules_for_downstream.rds \
+  --modules_v2 /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/08_module_and_sample_diagnostics/cov3_75pct/covMin10_methSD0p07/v2_exclude_protected_pcs/Modules_for_downstream.rds \
+  --genome hg38 \
+  --annotation_mode offline \
+  --helper_file /quobyte/lasallegrp/projects/GROWELL/WGBS/2025_bgw_comethyl_Victoria/scripts/comethyl_scripts/helper.R \
+  --cpg_island_file /quobyte/lasallegrp/projects/GROWELL/WGBS/2025_bgw_comethyl_Victoria/scripts/comethyl_scripts/cpgIslandExt.txt.gz
+
 
 # #script 12b
 # Rscript /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/scripts/comethyl_scripts/12b_enrichment.R \
@@ -345,14 +348,14 @@ Rscript /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_Georg
   --module_list_file /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/enrichrment_modules/modules.txt \
   --p_thresh 0.05 \
   --do_kegg true \
-  --do_go false \
+  --do_go true \
   --do_reactome false \
   --do_enrichr true \
   --enrichr_dbs GO_Biological_Process_2025,GO_Molecular_Function_2025,GO_Cellular_Component_2025,KEGG_2021_Human,MSigDB_Hallmark_2020,MSigDB_Oncogenic_Signatures,ClinVar_2025,WikiPathways_2024_Human,GTEx_Tissue_Expression_Up,Reactome_Pathways_2024,Human_Phenotype_Ontology,Epigenomics_Roadmap_HM_ChIP-seq,Elsevier_Pathway_Collection,Panther_2016,UK_Biobank_GWAS_v1,GWAS_Catalog_2025 \
   --use_enrichr_background false \
   --enrichr_retries 5 \
   --enrichr_sleep 2 \
-  --plot_p_col pvalue \
+  --plot_p_col p.adjust \
   --plot_top_n 10 \
   --plot_sig_cutoff 0.05 \
   --plot_width 10 \

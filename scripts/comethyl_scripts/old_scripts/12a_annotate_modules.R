@@ -35,11 +35,7 @@
 #     --modules_v3 /path/to/v3/modules/Modules.rds \
 #     --sample_info /path/to/sample_info.xlsx \
 #     --genome hg38 \
-#     --annotation_mode auto \
-#     --cpg_island_file /path/to/local/cpgIslandExt.txt.gz \
-#     [--add_genomic_location TRUE] \
-#     [--helper_file /path/to/helper.R]   # optional; defaults to
-#                                          # helper.R alongside this script
+#     --annotation_mode auto
 #
 # Output structure per variant:
 #   <project_root>/comethyl_output/12_annotation/<cpg_label>/<region_label>/<variant_name>/
@@ -50,9 +46,6 @@
 #     Module_Gene_Summary.xlsx
 #     Background_Genes.txt
 #     Background_Genes.tsv
-#     Module_Genic_Enrichment.tsv / .xlsx / .pdf   (module x genic-category Fisher's tests + heatmap)
-#     Module_CpG_Enrichment.tsv / .xlsx / .pdf     (module x CpG-category Fisher's tests + heatmap)
-#     session_info.txt
 #     run_parameters.txt
 #     run_log.txt
 # ============================================================
@@ -72,29 +65,62 @@ suppressPackageStartupMessages({
 })
 
 # ============================================================
-# 1) Shared helpers (CLI parsing, logging, validation, annotation core)
+# 1) Base argument parsing
 # ============================================================
-.get_arg_bootstrap <- function(flag, default = NULL) {
+get_arg <- function(flag, default = NULL) {
   args <- commandArgs(trailingOnly = TRUE)
   idx <- match(flag, args)
   if (!is.na(idx) && idx < length(args)) return(args[idx + 1])
   default
 }
 
-script_dir <- tryCatch(
-  dirname(sys.frame(1)$ofile),
-  error = function(e) NULL
-)
-if (is.null(script_dir) || !nzchar(script_dir)) script_dir <- getwd()
-
-# Default: helper.R lives alongside this script. Override with
-# --helper_file /full/path/to/helper.R if it lives elsewhere.
-helper_file <- .get_arg_bootstrap("--helper_file", file.path(script_dir, "helper.R"))
-if (!file.exists(helper_file)) {
-  stop("helper.R not found at: ", helper_file,
-       "\nPass --helper_file /path/to/helper.R if it lives elsewhere.", call. = FALSE)
+trim_or_null <- function(x) {
+  if (is.null(x) || is.na(x)) return(NULL)
+  x <- trimws(x)
+  if (!nzchar(x)) return(NULL)
+  x
 }
-source(helper_file)
+
+safe_dir_create <- function(path) {
+  if (!dir.exists(path)) dir.create(path, recursive = TRUE, showWarnings = FALSE)
+}
+
+timestamp_now <- function() {
+  format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+}
+
+append_log <- function(logfile, ...) {
+  txt <- paste0("[", timestamp_now(), "] ", paste0(..., collapse = ""))
+  cat(txt, "\n")
+  cat(txt, "\n", file = logfile, append = TRUE)
+}
+
+write_lines_safe <- function(x, file) {
+  writeLines(as.character(x), con = file, useBytes = TRUE)
+}
+
+# ============================================================
+# 2) Validation helpers
+# ============================================================
+stop_if_missing <- function(x, label) {
+  if (is.null(x) || !nzchar(x)) stop("Missing required argument: ", label, call. = FALSE)
+}
+
+validate_file_exists <- function(path, label) {
+  if (!file.exists(path)) stop(label, " not found: ", path, call. = FALSE)
+}
+
+validate_regions_df <- function(regions, source_label = "regions") {
+  req <- c("RegionID", "chr", "start", "end", "module")
+  missing_cols <- setdiff(req, colnames(regions))
+  if (length(missing_cols) > 0) {
+    stop(
+      source_label, " is missing required columns: ",
+      paste(missing_cols, collapse = ", "),
+      call. = FALSE
+    )
+  }
+}
 
 # ============================================================
 # 3) Sample info loader
@@ -148,12 +174,148 @@ derive_pipeline_dirs_from_modules <- function(modules_rds, project_root, step_na
 }
 
 # ============================================================
+# 5) Annotation helpers
+# ============================================================
+offline_nearest_gene <- function(gr, verbose = TRUE) {
+  have_ensdb <- requireNamespace("EnsDb.Hsapiens.v86", quietly = TRUE)
+  have_txdb  <- requireNamespace("TxDb.Hsapiens.UCSC.hg38.knownGene", quietly = TRUE)
+  have_org   <- requireNamespace("org.Hs.eg.db", quietly = TRUE)
+
+  if (!have_org) {
+    stop("org.Hs.eg.db is required for offline annotation.", call. = FALSE)
+  }
+
+  if (have_ensdb) {
+    if (verbose) message("[offline] Using EnsDb.Hsapiens.v86")
+    edb <- EnsDb.Hsapiens.v86::EnsDb.Hsapiens.v86
+    seqs <- unique(as.character(GenomeInfoDb::seqnames(gr)))
+    seqs <- seqs[seqs %in% GenomeInfoDb::seqlevels(edb)]
+
+    genes <- ensembldb::genes(edb, filter = AnnotationFilter::SeqNameFilter(seqs))
+    ggr <- GenomicRanges::GRanges(genes)
+
+    ens_ids <- genes$gene_id
+    map <- AnnotationDbi::select(
+      org.Hs.eg.db::org.Hs.eg.db,
+      keys = ens_ids,
+      keytype = "ENSEMBL",
+      columns = c("SYMBOL", "ENTREZID")
+    )
+
+    ggr$SYMBOL   <- map$SYMBOL[match(genes$gene_id, map$ENSEMBL)]
+    ggr$ENTREZID <- map$ENTREZID[match(genes$gene_id, map$ENSEMBL)]
+
+  } else if (have_txdb) {
+    if (verbose) message("[offline] Using TxDb.Hsapiens.UCSC.hg38.knownGene")
+    txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene::TxDb.Hsapiens.UCSC.hg38.knownGene
+    ggr  <- GenomicFeatures::genes(txdb)
+
+    map <- AnnotationDbi::select(
+      org.Hs.eg.db::org.Hs.eg.db,
+      keys = ggr$gene_id,
+      keytype = "ENTREZID",
+      columns = c("SYMBOL")
+    )
+
+    ggr$ENTREZID <- ggr$gene_id
+    ggr$SYMBOL   <- map$SYMBOL[match(ggr$ENTREZID, map$ENTREZID)]
+
+  } else {
+    stop(
+      "Install one of: EnsDb.Hsapiens.v86 OR TxDb.Hsapiens.UCSC.hg38.knownGene",
+      call. = FALSE
+    )
+  }
+
+  hit <- GenomicRanges::distanceToNearest(gr, ggr, ignore.strand = TRUE)
+  ng  <- ggr[S4Vectors::subjectHits(hit)]
+
+  data.frame(
+    chr = as.character(GenomeInfoDb::seqnames(gr))[S4Vectors::queryHits(hit)],
+    start = as.integer(S4Vectors::start(gr))[S4Vectors::queryHits(hit)],
+    end = as.integer(S4Vectors::end(gr))[S4Vectors::queryHits(hit)],
+    gene_symbol = as.character(ng$SYMBOL),
+    gene_entrezID = as.character(ng$ENTREZID),
+    stringsAsFactors = FALSE
+  )
+}
+
+annotate_offline_only <- function(regions_df, genome = "hg38", file_txt = NULL, verbose = TRUE) {
+  validate_regions_df(regions_df, "regions_df")
+
+  gr <- GenomicRanges::GRanges(
+    seqnames = regions_df$chr,
+    ranges   = IRanges::IRanges(start = regions_df$start, end = regions_df$end),
+    RegionID = regions_df$RegionID
+  )
+
+  ng <- offline_nearest_gene(gr, verbose = verbose)
+
+  out <- regions_df %>%
+    left_join(
+      ng %>% dplyr::select(chr, start, end, gene_symbol, gene_entrezID),
+      by = c("chr", "start", "end")
+    ) %>%
+    mutate(
+      gene_description = NA_character_,
+      gene_ensemblID   = NA_character_
+    )
+
+  if (!is.null(file_txt) && nzchar(file_txt)) {
+    write.table(out, file = file_txt, sep = "\t", quote = FALSE, row.names = FALSE)
+  }
+
+  out
+}
+
+annotate_regions_safe <- function(regions_df,
+                                  genome = "hg38",
+                                  annotation_mode = c("auto", "great", "offline"),
+                                  file_txt = NULL,
+                                  verbose = TRUE) {
+  annotation_mode <- match.arg(annotation_mode)
+
+  if (annotation_mode == "offline") {
+    return(annotate_offline_only(regions_df, genome = genome, file_txt = file_txt, verbose = verbose))
+  }
+
+  if (annotation_mode == "great") {
+    if (verbose) message("[annotate] Using comethyl::annotateModule() only")
+    return(comethyl::annotateModule(regions_df, genome = genome, file = file_txt))
+  }
+
+  tryCatch(
+    {
+      if (verbose) message("[annotate] Trying comethyl::annotateModule()")
+      comethyl::annotateModule(regions_df, genome = genome, file = file_txt)
+    },
+    error = function(e) {
+      message("[annotate] GREAT-based annotation failed: ", conditionMessage(e))
+      message("[annotate] Falling back to offline nearest-gene annotation.")
+      annotate_offline_only(regions_df, genome = genome, file_txt = file_txt, verbose = verbose)
+    }
+  )
+}
+
+# ============================================================
 # 6) Module/gene summary helpers
 # ============================================================
-# (offline_nearest_gene, annotate_offline_only, annotate_regions_safe
-#  now come from helper.R)
-# ============================================================
-# extract_regions_from_module_object() now comes from helper.R
+extract_regions_from_module_object <- function(obj, label = "module object") {
+  if (is.list(obj) && "regions" %in% names(obj)) {
+    regions <- obj$regions
+  } else if (is.data.frame(obj)) {
+    regions <- obj
+  } else {
+    stop(
+      "Could not extract regions from ", label,
+      ". Expected either a list with $regions or a data.frame.",
+      call. = FALSE
+    )
+  }
+
+  validate_regions_df(regions, label)
+  regions
+}
 
 make_module_gene_list_table <- function(annotated_regions) {
   validate_regions_df(annotated_regions, "annotated_regions")
@@ -201,14 +363,10 @@ make_background_gene_table <- function(annotated_regions) {
 run_annotation_for_variant <- function(modules_path,
                                        variant_label,
                                        sample_info_df,
-                                       sample_info_path,
                                        sample_id_col,
                                        genome,
                                        annotation_mode,
-                                       project_root,
-                                       add_genomic_location = TRUE,
-                                       cpg_island_file = NULL,
-                                       txdb_pkg = NULL) {
+                                       project_root) {
 
   validate_file_exists(modules_path, paste0("modules_", variant_label))
 
@@ -233,9 +391,6 @@ run_annotation_for_variant <- function(modules_path,
   append_log(log_file, "out_dir: ", out_dir)
   append_log(log_file, "genome: ", genome)
   append_log(log_file, "annotation_mode: ", annotation_mode)
-  append_log(log_file, "add_genomic_location: ", add_genomic_location)
-  append_log(log_file, "txdb_pkg: ", ifelse(is.null(txdb_pkg), paste0("(auto-resolved from genome=", genome, ")"), txdb_pkg))
-  append_log(log_file, "cpg_island_file: ", ifelse(is.null(cpg_island_file), "(not provided)", cpg_island_file))
 
   if (!is.null(sample_info_df)) {
     append_log(log_file, "sample_info rows: ", nrow(sample_info_df), "; cols: ", ncol(sample_info_df))
@@ -266,63 +421,13 @@ run_annotation_for_variant <- function(modules_path,
       genome = genome,
       annotation_mode = annotation_mode,
       file_txt = annotated_tsv,
-      verbose = TRUE,
-      add_genomic_location = add_genomic_location,
-      cpg_island_file = cpg_island_file,
-      txdb_pkg = txdb_pkg
+      verbose = TRUE
     )
   )
 
   append_log(log_file, "Annotated regions rows: ", nrow(annotated_regions))
-  if ("genomic_location" %in% colnames(annotated_regions)) {
-    append_log(log_file, "Regions with genomic_location: ",
-               sum(!is.na(annotated_regions$genomic_location)))
-  }
-  if ("cpg_context" %in% colnames(annotated_regions)) {
-    append_log(log_file, "Regions with cpg_context: ",
-               sum(!is.na(annotated_regions$cpg_context)))
-  }
 
   openxlsx::write.xlsx(annotated_regions, annotated_xlsx, rowNames = FALSE)
-
-  # --------------------------------------------------------
-  # Module-level annotation enrichment (genic + CpG), only when the
-  # required columns are present -- i.e. offline path ran with
-  # add_genomic_location/cpg_island_file. Skipped silently (with a
-  # log note) for GREAT-based output, which doesn't have these columns.
-  # --------------------------------------------------------
-  if ("genomic_location" %in% colnames(annotated_regions)) {
-    genic_enrichment <- moduleGenicEnrichment(annotated_regions, verbose = TRUE)
-    write.table(genic_enrichment, file.path(out_dir, "Module_Genic_Enrichment.tsv"),
-                sep = "\t", quote = FALSE, row.names = FALSE)
-    openxlsx::write.xlsx(genic_enrichment, file.path(out_dir, "Module_Genic_Enrichment.xlsx"), rowNames = FALSE)
-    plotModuleAnnotationEnrichment(
-      genic_enrichment,
-      title = paste0("Genic Region Enrichment by Module (", variant_label, ")"),
-      file = file.path(out_dir, "Module_Genic_Enrichment.pdf")
-    )
-    append_log(log_file, "Wrote genic enrichment table + plot (",
-               nrow(genic_enrichment), " module x category tests)")
-  } else {
-    append_log(log_file, "Skipping genic enrichment (no genomic_location column)")
-  }
-
-  if (all(c("CpG.Island", "CpG.Shore", "CpG.Shelf", "Open.Sea") %in% colnames(annotated_regions))) {
-    cpg_enrichment <- moduleCpGEnrichment(annotated_regions, verbose = TRUE)
-    write.table(cpg_enrichment, file.path(out_dir, "Module_CpG_Enrichment.tsv"),
-                sep = "\t", quote = FALSE, row.names = FALSE)
-    openxlsx::write.xlsx(cpg_enrichment, file.path(out_dir, "Module_CpG_Enrichment.xlsx"), rowNames = FALSE)
-    plotModuleAnnotationEnrichment(
-      cpg_enrichment,
-      title = paste0("CpG Context Enrichment by Module (", variant_label, ")"),
-      categoryOrder = c("Island", "Shore", "Shelf", "OpenSea"),
-      file = file.path(out_dir, "Module_CpG_Enrichment.pdf")
-    )
-    append_log(log_file, "Wrote CpG enrichment table + plot (",
-               nrow(cpg_enrichment), " module x category tests)")
-  } else {
-    append_log(log_file, "Skipping CpG enrichment (no CpG.Island/Shore/Shelf/Open.Sea columns)")
-  }
 
   module_gene_list <- make_module_gene_list_table(annotated_regions)
   write.table(module_gene_list, gene_list_tsv, sep = "\t", quote = FALSE, row.names = FALSE)
@@ -345,8 +450,6 @@ run_annotation_for_variant <- function(modules_path,
     paste0("modules_path\t", modules_path),
     paste0("genome\t", genome),
     paste0("annotation_mode\t", annotation_mode),
-    paste0("add_genomic_location\t", add_genomic_location),
-    paste0("cpg_island_file\t", ifelse(is.null(cpg_island_file), "", cpg_island_file)),
     paste0("sample_info_provided\t", !is.null(sample_info_df)),
     paste0("sample_id_col\t", ifelse(is.null(sample_id_col), "", sample_id_col)),
     paste0("pipeline_root\t", dir_info$pipeline_root),
@@ -361,17 +464,6 @@ run_annotation_for_variant <- function(modules_path,
     paste0("n_background_genes\t", nrow(background_genes))
   )
   write_lines_safe(params, params_file)
-
-  session_info_file <- file.path(out_dir, "session_info.txt")
-  write_session_info(
-    session_info_file,
-    extra_files = list(
-      modules_path = modules_path,
-      sample_info = sample_info_path,
-      cpg_island_file = cpg_island_file
-    )
-  )
-  append_log(log_file, "Wrote: ", session_info_file)
 
   append_log(log_file, "Finished annotation for variant: ", variant_label)
 
@@ -397,9 +489,6 @@ modules_v3      <- trim_or_null(get_arg("--modules_v3"))
 
 genome          <- trim_or_null(get_arg("--genome", "hg38"))
 annotation_mode <- trim_or_null(get_arg("--annotation_mode", "auto"))
-cpg_island_file <- trim_or_null(get_arg("--cpg_island_file"))
-add_genomic_location <- parse_bool(get_arg("--add_genomic_location", "TRUE"), "--add_genomic_location")
-txdb_pkg        <- trim_or_null(get_arg("--txdb_pkg"))  # override; default NULL = auto-resolve from --genome
 
 # ============================================================
 # 9) Validate required inputs
@@ -413,7 +502,6 @@ if (!dir.exists(project_root)) {
 }
 validate_file_exists(sample_info, "sample_info")
 validate_file_exists(modules_v1, "modules_v1")
-if (!is.null(cpg_island_file)) validate_file_exists(cpg_island_file, "cpg_island_file")
 
 if (!is.null(modules_v2)) validate_file_exists(modules_v2, "modules_v2")
 if (!is.null(modules_v3)) validate_file_exists(modules_v3, "modules_v3")
@@ -448,14 +536,10 @@ run_annotation_for_variant(
   modules_path = modules_v1,
   variant_label = "v1_all_pcs",
   sample_info_df = sample_info_df,
-  sample_info_path = sample_info,
   sample_id_col = sample_id_col,
   genome = genome,
   annotation_mode = annotation_mode,
-  project_root = project_root,
-  add_genomic_location = add_genomic_location,
-  cpg_island_file = cpg_island_file,
-  txdb_pkg = txdb_pkg
+  project_root = project_root
 )
 
 if (!is.null(modules_v2)) {
@@ -463,14 +547,10 @@ if (!is.null(modules_v2)) {
     modules_path = modules_v2,
     variant_label = "v2_exclude_protected_pcs",
     sample_info_df = sample_info_df,
-    sample_info_path = sample_info,
     sample_id_col = sample_id_col,
     genome = genome,
     annotation_mode = annotation_mode,
-    project_root = project_root,
-    add_genomic_location = add_genomic_location,
-    cpg_island_file = cpg_island_file,
-    txdb_pkg = txdb_pkg
+    project_root = project_root
   )
 }
 
@@ -479,14 +559,10 @@ if (!is.null(modules_v3)) {
     modules_path = modules_v3,
     variant_label = "v3_technical_pcs_only",
     sample_info_df = sample_info_df,
-    sample_info_path = sample_info,
     sample_id_col = sample_id_col,
     genome = genome,
     annotation_mode = annotation_mode,
-    project_root = project_root,
-    add_genomic_location = add_genomic_location,
-    cpg_island_file = cpg_island_file,
-    txdb_pkg = txdb_pkg
+    project_root = project_root
   )
 }
 
