@@ -15,20 +15,30 @@ suppressPackageStartupMessages({
 # -----------------------------
 # Input / output paths
 # -----------------------------
-infile <- "/quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_publication_labels.xlsx"
+infile <- "/quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_070702026_publication_labels.xlsx"
 
 outdir <- "/quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/numeric_conversion_check"
 dir.create(outdir, recursive = TRUE, showWarnings = FALSE)
 
-outfile_full_numeric <- file.path(outdir, "Intergen173_05222026_full_dataset_priority_numeric.xlsx")
-outfile_report       <- file.path(outdir, "Intergen173_05222026_priority_variable_conversion_report.xlsx")
-outfile_missing      <- file.path(outdir, "Intergen173_05222026_priority_variables_missing.txt")
+outfile_full_numeric <- file.path(outdir, "Intergen173_070702026_full_dataset_priority_numeric.xlsx")
+outfile_report       <- file.path(outdir, "Intergen173_070702026_priority_variable_conversion_report.xlsx")
+outfile_missing      <- file.path(outdir, "Intergen173_070702026_priority_variables_missing.txt")
+
+
+# infile <- "/quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_publication_labels.xlsx"
+
+# outdir <- "/quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/numeric_conversion_check"
+# dir.create(outdir, recursive = TRUE, showWarnings = FALSE)
+
+# outfile_full_numeric <- file.path(outdir, "Intergen173_05222026_full_dataset_priority_numeric.xlsx")
+# outfile_report       <- file.path(outdir, "Intergen173_05222026_priority_variable_conversion_report.xlsx")
+# outfile_missing      <- file.path(outdir, "Intergen173_05222026_priority_variables_missing.txt")
 
 # -----------------------------
 # Priority variables to convert/check
 # -----------------------------
 priority_vars <- unique(c(
-  "pcb82", "pcb174", "pcb177", "pcb178", "pcb199",
+  "PCB82", "PCB174", "PCB177", "PCB178", "PCB199",
   "PFHxA", "DDT", "DDE", "op_DDT", "MePFOSAAcOH",
   "PCB201", "PFDeA", "F1 bBHC", "F1 APOE genotype",
   "F1 sex", "PFDoA", "PFNA"

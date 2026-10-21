@@ -4,6 +4,9 @@
 # Shared helper functions for the reproducible comethyl pipeline.
 #
 # FUNCTIONS INCLUDED
+# - read_trait_table()
+#  - parse_trait_file()
+#  -  coerce_numeric()
 #   - readTraitFile()
 #   - readSampleInfo()
 #   - resolveTraits()
@@ -27,6 +30,97 @@ suppressPackageStartupMessages({
   library(stringr)
   library(scales)
 })
+
+
+# ── Helpers for reading trait tables ────────────────────────────────────────────────────────
+na_strings <- c("NA", "N/A", "NaN", ".", "")
+
+read_trait_table <- function(path, sheet) {
+  ext <- tolower(tools::file_ext(path))
+  if (ext == "xlsx") {
+    sheet_arg <- if (grepl("^[0-9]+$", sheet)) as.integer(sheet) else sheet
+    # sep.names = " " keeps spaces in column names (openxlsx default replaces
+    # them with '.'), so names like "F1 Black race" survive intact.
+    openxlsx::read.xlsx(path, sheet = sheet_arg, check.names = FALSE,
+                        sep.names = " ", na.strings = na_strings)
+  } else if (ext == "csv") {
+    utils::read.csv(path, check.names = FALSE, stringsAsFactors = FALSE,
+                    na.strings = na_strings)
+  } else if (ext %in% c("tsv", "txt")) {
+    utils::read.delim(path, check.names = FALSE, stringsAsFactors = FALSE,
+                      na.strings = na_strings)
+  } else {
+    stop("Unsupported input extension '.", ext, "'. Use .xlsx, .csv, or .tsv.")
+  }
+}
+
+# ── Helpers for parsing trait files ────────────────────────────────────────────────────────
+
+parse_trait_file <- function(path) {
+  lines <- readLines(path, warn = FALSE, encoding = "UTF-8")
+  lines <- trimws(sub("\r$", "", lines))
+  # Section header: '#' followed by >= 2 box-drawing or hyphen characters
+  header_re <- "^#\\s*[\u2500-]{2,}\\s*(.*?)\\s*[\u2500-]*$"
+  current_group <- NA_character_
+  traits <- character(0)
+  groups <- character(0)
+  for (ln in lines) {
+    if (ln == "") next
+    if (startsWith(ln, "#")) {
+      if (grepl(header_re, ln, perl = TRUE)) {
+        g <- trimws(sub(header_re, "\\1", ln, perl = TRUE))
+        if (nzchar(g)) current_group <- g
+      }
+      next
+    }
+    ln <- trimws(sub("\\s+#.*$", "", ln))  # strip trailing inline comments
+    if (ln == "") next
+    traits <- c(traits, ln)
+    groups <- c(groups, current_group)
+  }
+  if (length(traits) == 0) stop("No traits found in trait file: ", path)
+  dups <- unique(traits[duplicated(traits)])
+  if (length(dups) > 0) {
+    stop("Duplicate traits in trait file: ", paste(shQuote(dups), collapse = ", "))
+  }
+  list(traits = traits, groups = groups)
+}
+
+suggest_names <- function(missing, available) {
+  vapply(missing, function(m) {
+    d <- utils::adist(tolower(m), tolower(available))[1, ]
+    best <- available[order(d)][1:min(3, length(available))]
+    paste0("  - ", shQuote(m), "  (closest: ", paste(shQuote(best), collapse = ", "), ")")
+  }, character(1))
+}
+
+# ── Helpers for coercing to numeric ────────────────────────────────────────────────────────
+
+coerce_numeric <- function(df, codes = character(0)) {
+  bad <- list()
+  recoded <- setNames(integer(ncol(df)), names(df))
+  for (nm in names(df)) {
+    x <- df[[nm]]
+    if (is.factor(x))  x <- as.character(x)
+    if (is.logical(x)) x <- as.integer(x)
+    if (length(codes) > 0 && is.character(x)) {
+      hit <- !is.na(x) & trimws(x) %in% codes
+      recoded[nm] <- sum(hit)
+      x[hit] <- NA
+    }
+    xn <- suppressWarnings(as.numeric(x))
+    lost <- !is.na(x) & is.na(xn)
+    if (any(lost)) bad[[nm]] <- utils::head(unique(as.character(x[lost])), 5)
+    df[[nm]] <- xn
+  }
+  list(df = df, bad = bad, recoded = recoded)
+}
+
+p_to_stars <- function(p, thr) {
+  out <- rep("", length(p))
+  for (i in seq_along(thr)) out[!is.na(p) & p < thr[i]] <- strrep("*", i)
+  out
+}
 
 # ------------------------------------------------------------
 # readTraitFile

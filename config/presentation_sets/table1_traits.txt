@@ -1,0 +1,49 @@
+# ── Participant characteristics ────────────────────────────────
+F1 age (years)
+F1 Black race
+F1 obesity
+F1 overweight
+
+# ── Reproductive characteristics ───────────────────────────────
+F1 age at menarche
+F1 early menarche
+F1 late menarche
+Breast cancer: F1
+Breast cancer: F0
+
+# ── Chemical exposures ─────────────────────────────────────────
+DDT
+DDE
+op_DDT
+PCB101
+PCB118
+PCB138
+PCB153
+PCB180
+PCB183
+PCB187
+PCB194
+PCB201
+PCB203
+PCB15
+PCB56
+
+# ── Neighborhood stressors (ICE) ──────────────────────────────
+ICE education: Q1
+ICE education: Q4
+ICE race: Q1
+ICE race: Q4
+ICE income: Q1
+ICE income: Q4
+ICE income-race: Q1
+ICE income-race: Q4
+
+# ── Allostatic load ────────────────────────────────────────────
+F1 Allostatic load score
+
+# ── Neurodegenerative biomarkers ──────────────────────────────
+F1 AB42/AB40 ratio
+F1 p-tau217
+F1 p-tau217/total tau
+F1 p-tau217/AB42
+F1 APOE e4 carrier

@@ -9,11 +9,11 @@
 #
 # Usage:
 # Rscript rename_metadata_publication_labels.R \
-#   --input_path /path/Intergen173_05222026_thesis.xlsx \
-#   --output_path /path/Intergen173_05222026_publication_labels.xlsx \
+#   --input_path /path/Intergen173_070702026_thesis.xlsx \
+#   --output_path /path/Intergen173_070702026_publication_labels.xlsx \
 #   --dictionary_path "/path/Data Dictionary for Intergen Class File.xlsx" \
-#   --dictionary_output_path /path/Intergen173_05222026_DataDictionary_publication_labels.xlsx
-# =============================================================================
+#   --dictionary_output_path /path/Intergen173_070702026_DataDictionary_publication_labels.xlsx
+# ==============================================================================
 
 suppressPackageStartupMessages(library(openxlsx))
 
@@ -32,16 +32,16 @@ parse_args <- function(args) {
 args <- parse_args(commandArgs(trailingOnly = TRUE))
 
 input_path <- args$input_path %||%
-  "/quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_thesis.xlsx"
+  "/quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_Class07_07_2026.xlsx"
 
 output_path <- args$output_path %||%
-  file.path(dirname(input_path), "Intergen173_05222026_publication_labels.xlsx")
+  file.path(dirname(input_path), "Intergen173_070702026_publication_labels.xlsx")
 
 dictionary_path <- args$dictionary_path %||%
-  "/quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Data Dictionary for Intergen Class File (3) (1).xlsx"
+  "/quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Data_Dictionary_for_Intergen_Multiomics_Class_File_07072026.xlsx"
 
 dictionary_output_path <- args$dictionary_output_path %||%
-  file.path(dirname(output_path), "Intergen173_05222026_DataDictionary_publication_labels.xlsx")
+  file.path(dirname(output_path), "Intergen173_070702026_DataDictionary_publication_labels.xlsx")
 
 if (!file.exists(input_path)) stop("Input metadata file not found: ", input_path)
 if (!file.exists(dictionary_path)) stop("Input data dictionary not found: ", dictionary_path)
@@ -107,6 +107,15 @@ rename_map <- c(
   "breastcaF1" = "Breast cancer: F1",
   "breastcaF0" = "Breast cancer: F0",
 
+  # Birth characteristics
+  "ga_wks" = "F1 gestational age (weeks)",
+  "under37" = "F1 preterm birth",
+  "iugrz" = "F1 IUGR",
+
+  # Menopausal status at midlife visit
+  "postmenopausal" = "F1 postmenopausal",
+  "perimenopausal" = "F1 perimenopausal",
+
   # Perinatal organochlorines / PFAS metabolites
   "EtPFOSAAcOH" = "EtPFOSAAcOH",
   "HCB" = "HCB",
@@ -117,15 +126,15 @@ rename_map <- c(
   "PCB28" = "PCB28",
   "PCB66" = "PCB66",
   "PCB74" = "PCB74",
-  "PCB99" = "PCBB99",
+  "PCB99" = "PCB99",
   "PCB101" = "PCB101",
   "PCB105" = "PCB105",
   "PCB118" = "PCB118",
   "PCB138" = "PCB138",
   "PCB153" = "PCB153",
-  "PCB156" = "PCBB156",
-  "PCB167" = "PCBB167",
-  "PCB170" = "PCBB170",
+  "PCB156" = "PCB156",
+  "PCB167" = "PCB167",
+  "PCB170" = "PCB170",
   "PCB180" = "PCB180",
   "PCB183" = "PCB183",
   "PCB187" = "PCB187",
@@ -203,12 +212,12 @@ rename_map <- c(
   "DHEAS" = "F1 DHEA-S",
   "cholratio" = "F1 Total/HDL cholesterol ratio",
   "HDLC" = "F1 HDL cholesterol",
-  "IL6" = "F1 IL-6 ",
+  "IL6" = "F1 IL-6",
   "HbA1c" = "F1 HbA1c (%)",
   "bpdias_avg" = "F1 Diastolic blood pressure",
   "bpsys_avg" = "F1 Systolic blood pressure",
   "bodyfat_avg" = "F1 Body fat (%)",
-  "bmi" = "F1 BMI ",
+  "bmi" = "F1 BMI",
   "waistcirc_avg" = "F1 Waist circumference",
   "weight_avg" = "F1 Weight (kg)"
 )
