@@ -104,8 +104,8 @@ rename_map <- c(
   "agemenarche_adol" = "F1 age at menarche",
   "youngmen_adol" = "F1 early menarche",
   "oldmen_adol" = "F1 late menarche",
-  "breastcaF1" = "Breast cancer: F1",
-  "breastcaF0" = "Breast cancer: F0",
+  "breastcaF1" = "F1 Breast cancer",
+  "breastcaF0" = "F0 Breast cancer",
 
   # Birth characteristics
   "ga_wks" = "F1 gestational age (weeks)",

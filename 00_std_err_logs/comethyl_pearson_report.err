@@ -23088,3 +23088,495 @@ Figure 1 Panel A complete.
 Outputs in: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/figures/panels/1A
 Starting Figure 1 Panel B
 [2026-07-30T15:02:29.829] error: *** JOB 19597483 ON hive-dc-7-6-26 CANCELLED AT 2026-07-30T15:02:29 DUE to SIGNAL Terminated ***
+Starting Script 04
+Output directory: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only
+PC model requested: intercept_only
+Loaded methylation matrix: 465397 regions x 173 samples
+[readSampleInfo] Reading sample info: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_publication_labels.xlsx
+[readSampleInfo] No sample_id_col provided; using existing rownames.
+[readSampleInfo] First 6 rownames used as sample IDs:
+Samples only in methylation: 0
+Samples only in sample_info: 0
+After alignment: 465397 regions x 173 samples
+Numeric trait columns retained for diagnostics: 114
+[readTraitFile] Loaded 1 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/protected_traits.txt
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/technical_traits.txt
+[resolveTraits] protected_traits: requested = 1, found = 0, missing = 1
+[resolveTraits] technical_traits: requested = 3, found = 0, missing = 3
+PC model selected: intercept_only
+Using intercept-only model for sva::num.sv
+[getPCs_generic] Determining number of PCs using sva::num.sv
+[getPCs_generic] num.sv selected 21 PCs as surrogate variables
+PC matrix dimensions: 173 samples x 21 PCs
+Surrogate variables (num.sv): PC_1 through PC_21
+Saved variance explained plot: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only/Variance_Explained_Top20_PCs.pdf
+[getMEtraitCor] Testing associations between module eigennodes and sample traits using pearson correlation
+[getMEtraitCor] Saving file as /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only/PC_Trait_Correlation_Stats_Pearson.tsv
+Warning message:
+In pt(T, np - 2, lower.tail = FALSE) : NaNs produced
+[getMEtraitCor] Testing associations between module eigennodes and sample traits using bicor correlation
+[getMEtraitCor] Saving file as /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only/PC_Trait_Correlation_Stats_Bicor.tsv
+Skipping selected-traits heatmap: no selected traits available under selected_trait_mode = none
+[plotMEtraitCor_pub] corType = cor
+[plotMEtraitCor_pub] autoSize -> width=6.00, height=11.00 (nX=21,nY=94)
+[plotMEtraitCor_pub] corType = cor
+[plotMEtraitCor_pub] autoSize -> width=6.00, height=10.50 (nX=21,nY=50)
+[plotTraitDendrogramFromPC] Saved: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only/Trait_Dendrogram_From_PC_Associations.pdf
+Surrogate variables identified by num.sv: 21 (PC_1 through PC_21)
+Consensus Script 04 complete: PC derivation and diagnostics finished
+PC model used for num.sv: intercept_only
+Output folder: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only
+------------------------------------------------------------
+[LATENT STRUCTURE SUMMARY]
+------------------------------------------------------------
+Samples: 173
+Selected latent factors for adjustment (num.sv): 21
+
+Returned adjustment matrix: 173 x 21 (samples x selected PCs)
+
+Variance captured by selected PCs: 22.75%
+
+Starting Script 04
+Output directory: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/protected_model
+PC model requested: protected
+Loaded methylation matrix: 465397 regions x 173 samples
+[readSampleInfo] Reading sample info: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_publication_labels.xlsx
+[readSampleInfo] No sample_id_col provided; using existing rownames.
+[readSampleInfo] First 6 rownames used as sample IDs:
+Samples only in methylation: 0
+Samples only in sample_info: 0
+After alignment: 465397 regions x 173 samples
+Numeric trait columns retained for diagnostics: 114
+[readTraitFile] Loaded 1 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/protected_traits.txt
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/technical_traits.txt
+[resolveTraits] protected_traits: requested = 1, found = 0, missing = 1
+[resolveTraits] technical_traits: requested = 3, found = 0, missing = 3
+Error: --pc_model protected was requested, but no protected traits were found. Either provide a valid --protected_traits_file or use --pc_model intercept_only.
+Execution halted
+Starting Script 04
+Output directory: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only
+PC model requested: intercept_only
+Loaded methylation matrix: 465397 regions x 173 samples
+[readSampleInfo] Reading sample info: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_publication_labels.xlsx
+[readSampleInfo] No sample_id_col provided; using existing rownames.
+[readSampleInfo] First 6 rownames used as sample IDs:
+Samples only in methylation: 0
+Samples only in sample_info: 0
+After alignment: 465397 regions x 173 samples
+Numeric trait columns retained for diagnostics: 114
+[readTraitFile] Loaded 1 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/protected_traits.txt
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/technical_traits.txt
+[resolveTraits] protected_traits: requested = 1, found = 0, missing = 1
+[resolveTraits] technical_traits: requested = 3, found = 0, missing = 3
+PC model selected: intercept_only
+Using intercept-only model for sva::num.sv
+[getPCs_generic] Determining number of PCs using sva::num.sv
+[getPCs_generic] num.sv selected 21 PCs as surrogate variables
+PC matrix dimensions: 173 samples x 21 PCs
+Surrogate variables (num.sv): PC_1 through PC_21
+Saved variance explained plot: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only/Variance_Explained_Top20_PCs.pdf
+[getMEtraitCor] Testing associations between module eigennodes and sample traits using pearson correlation
+[getMEtraitCor] Saving file as /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only/PC_Trait_Correlation_Stats_Pearson.tsv
+Warning message:
+In pt(T, np - 2, lower.tail = FALSE) : NaNs produced
+[getMEtraitCor] Testing associations between module eigennodes and sample traits using bicor correlation
+[getMEtraitCor] Saving file as /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only/PC_Trait_Correlation_Stats_Bicor.tsv
+Skipping selected-traits heatmap: no selected traits available under selected_trait_mode = none
+[plotMEtraitCor_pub] corType = cor
+[plotMEtraitCor_pub] autoSize -> width=6.00, height=11.00 (nX=21,nY=94)
+[plotMEtraitCor_pub] corType = cor
+[plotMEtraitCor_pub] autoSize -> width=6.00, height=10.50 (nX=21,nY=50)
+[plotTraitDendrogramFromPC] Saved: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only/Trait_Dendrogram_From_PC_Associations.pdf
+Surrogate variables identified by num.sv: 21 (PC_1 through PC_21)
+Consensus Script 04 complete: PC derivation and diagnostics finished
+PC model used for num.sv: intercept_only
+Output folder: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only
+------------------------------------------------------------
+[LATENT STRUCTURE SUMMARY]
+------------------------------------------------------------
+Samples: 173
+Selected latent factors for adjustment (num.sv): 21
+
+Returned adjustment matrix: 173 x 21 (samples x selected PCs)
+
+Variance captured by selected PCs: 22.75%
+
+Starting Script 04
+Output directory: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/protected_model
+PC model requested: protected
+Loaded methylation matrix: 465397 regions x 173 samples
+[readSampleInfo] Reading sample info: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_publication_labels.xlsx
+[readSampleInfo] No sample_id_col provided; using existing rownames.
+[readSampleInfo] First 6 rownames used as sample IDs:
+Samples only in methylation: 0
+Samples only in sample_info: 0
+After alignment: 465397 regions x 173 samples
+Numeric trait columns retained for diagnostics: 114
+[readTraitFile] Loaded 1 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/protected_traits.txt
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/technical_traits.txt
+[resolveTraits] protected_traits: requested = 1, found = 0, missing = 1
+[resolveTraits] technical_traits: requested = 3, found = 0, missing = 3
+Error: --pc_model protected was requested, but no protected traits were found. Either provide a valid --protected_traits_file or use --pc_model intercept_only.
+Execution halted
+Starting Script 04
+Output directory: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only
+PC model requested: intercept_only
+Loaded methylation matrix: 465397 regions x 173 samples
+[readSampleInfo] Reading sample info: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_publication_labels.xlsx
+[readSampleInfo] No sample_id_col provided; using existing rownames.
+[readSampleInfo] First 6 rownames used as sample IDs:
+Samples only in methylation: 0
+Samples only in sample_info: 0
+After alignment: 465397 regions x 173 samples
+Numeric trait columns retained for diagnostics: 114
+[readTraitFile] Loaded 1 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/protected_traits.txt
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/technical_traits.txt
+[resolveTraits] protected_traits: requested = 1, found = 1, missing = 0
+[resolveTraits] technical_traits: requested = 3, found = 0, missing = 3
+[resolveTraits] Missing technical_traits: Percent_Duplicated_Reads, Percent_Aligned_Total, Total_Reads
+PC model selected: intercept_only
+Using intercept-only model for sva::num.sv
+[getPCs_generic] Determining number of PCs using sva::num.sv
+[getPCs_generic] num.sv selected 21 PCs as surrogate variables
+PC matrix dimensions: 173 samples x 21 PCs
+Surrogate variables (num.sv): PC_1 through PC_21
+Saved variance explained plot: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only/Variance_Explained_Top20_PCs.pdf
+[getMEtraitCor] Testing associations between module eigennodes and sample traits using pearson correlation
+[getMEtraitCor] Saving file as /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only/PC_Trait_Correlation_Stats_Pearson.tsv
+Warning message:
+In pt(T, np - 2, lower.tail = FALSE) : NaNs produced
+[getMEtraitCor] Testing associations between module eigennodes and sample traits using bicor correlation
+[getMEtraitCor] Saving file as /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only/PC_Trait_Correlation_Stats_Bicor.tsv
+[plotMEtraitCor_pub] corType = bicor
+[plotMEtraitCor_pub] autoSize -> width=6.00, height=5.00 (nX=21,nY=1)
+[plotMEtraitCor_pub] corType = bicor
+[plotMEtraitCor_pub] autoSize -> width=6.00, height=11.00 (nX=21,nY=89)
+[plotMEtraitCor_pub] corType = bicor
+[plotMEtraitCor_pub] autoSize -> width=6.00, height=10.50 (nX=21,nY=50)
+[plotTraitDendrogramFromPC] Saved: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only/Trait_Dendrogram_From_PC_Associations.pdf
+Surrogate variables identified by num.sv: 21 (PC_1 through PC_21)
+Consensus Script 04 complete: PC derivation and diagnostics finished
+PC model used for num.sv: intercept_only
+Output folder: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only
+------------------------------------------------------------
+[LATENT STRUCTURE SUMMARY]
+------------------------------------------------------------
+Samples: 173
+Selected latent factors for adjustment (num.sv): 21
+
+Returned adjustment matrix: 173 x 21 (samples x selected PCs)
+
+Variance captured by selected PCs: 22.75%
+
+Starting Script 05
+Output directory: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/05_methylation_adjustment/cov3_75pct/covMin10_methSD0p07
+After alignment: meth = 465397 regions x 173 samples; PCs = 173 samples x 21 PCs
+[readTraitFile] Loaded 1 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/protected_traits.txt
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/technical_traits.txt
+[resolveTraits] protected_traits: requested = 1, found = 0, missing = 1
+[resolveTraits] technical_traits: requested = 3, found = 0, missing = 3
+[adjustRegionMeth] Adjusting region methylation for the top principal components
+[adjustRegionMeth] Saving file as /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/05_methylation_adjustment/cov3_75pct/covMin1Output directory: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only
+PC model requested: intercept_only
+Loaded methylation matrix: 465397 regions x 173 samples
+[readSampleInfo] Reading sample info: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173.xlsx
+[readSampleInfo] No sample_id_col provided; using existing rownames.
+[readSampleInfo] First 6 rownames used as sample IDs:
+Samples only in methylation: 0
+Samples only in sample_info: 0
+After alignment: 465397 regions x 173 samples
+Numeric trait columns retained for diagnostics: 45
+[readTraitFile] Loaded 2 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/protected_traits.txt
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/technical_traits.txt
+[resolveTraits] protected_traits: requested = 2, found = 1, missing = 1
+[resolveTraits] technical_traits: requested = 3, found = 0, missing = 3
+PC model selected: intercept_only
+Using intercept-only model for sva::num.sv
+[getPCs_generic] Determining number of PCs using sva::num.sv
+[getPCs_generic] num.sv selected 21 PCs as surrogate variables
+PC matrix dimensions: 173 samples x 21 PCs
+Surrogate variables (num.sv): PC_1 through PC_21
+Saved variance explained plot: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only/Variance_Explained_Top20_PCs.pdf
+[getMEtraitCor] Testing associations between module eigennodes and sample traits using pearson correlation
+[getMEtraitCor] Saving file as /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only/PC_Trait_Correlation_Stats_Pearson.tsv
+[getMEtraitCor] Testing associations between module eigennodes and sample traits using bicor correlation
+[getMEtraitCor] Saving file as /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only/PC_Trait_Correlation_Stats_Bicor.tsv
+[plotMEtraitCor_pub] corType = cor
+[plotMEtraitCor_pub] autoSize -> width=6.00, height=5.00 (nX=21,nY=1)
+[plotMEtraitCor_pub] corType = cor
+[plotMEtraitCor_pub] autoSize -> width=6.00, height=9.70 (nX=21,nY=45)
+[plotMEtraitCor_pub] corType = cor
+[plotMEtraitCor_pub] autoSize -> width=6.00, height=9.70 (nX=21,nY=45)
+[plotTraitDendrogramFromPC] Saved: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only/Trait_Dendrogram_From_PC_Associations.pdf
+Surrogate variables identified by num.sv: 21 (PC_1 through PC_21)
+Consensus Script 04 complete: PC derivation and diagnostics finished
+PC model used for num.sv: intercept_only
+Output folder: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only
+------------------------------------------------------------
+[LATENT STRUCTURE SUMMARY]
+------------------------------------------------------------
+Samples: 173
+Selected latent factors for adjustment (num.sv): 21
+
+Returned adjustment matrix: 173 x 21 (samples x selected PCs)
+
+Variance captured by selected PCs: 22.75%
+
+Starting Script 04
+Output directory: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/protected_model
+PC model requested: protected
+Loaded methylation matrix: 465397 regions x 173 samples
+[readSampleInfo] Reading sample info: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173.xlsx
+[readSampleInfo] No sample_id_col provided; using existing rownames.
+[readSampleInfo] First 6 rownames used as sample IDs:
+Samples only in methylation: 0
+Samples only in sample_info: 0
+After alignment: 465397 regions x 173 samples
+Numeric trait columns retained for diagnostics: 45
+[readTraitFile] Loaded 2 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/protected_traits.txt
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/technical_traits.txt
+[resolveTraits] protected_traits: requested = 2, found = 1, missing = 1
+[resolveTraits] technical_traits: requested = 3, found = 0, missing = 3
+PC model selected: protected
+Using protected traits in SVA model matrix: black_race
+[getPCs_generic] Determining number of PCs using sva::num.sv
+[2026-10-26T16:46:10.764] error: *** JOB 25154580 ON hive-dc-7-4-42 CANCELLED AT 2026-10-26T16:46:10 DUE to SIGNAL Terminated ***
+Starting Script 04
+Output directory: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only
+PC model requested: intercept_only
+Loaded methylation matrix: 465397 regions x 173 samples
+[readSampleInfo] Reading sample info: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_full_dataset_priority_numeric.xlsx
+[readSampleInfo] No sample_id_col provided; using existing rownames.
+[readSampleInfo] First 6 rownames used as sample IDs:
+Samples only in methylation: 0
+Samples only in sample_info: 0
+After alignment: 465397 regions x 173 samples
+Numeric trait columns retained for diagnostics: 121
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/protected_traits.txt
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/technical_traits.txt
+[resolveTraits] protected_traits: requested = 3, found = 1, missing = 2
+[resolveTraits] technical_traits: requested = 3, found = 0, missing = 3
+PC model selected: intercept_only
+Using intercept-only model for sva::num.sv
+[getPCs_generic] Determining number of PCs using sva::num.sv
+[getPCs_generic] num.sv selected 21 PCs as surrogate variables
+PC matrix dimensions: 173 samples x 21 PCs
+Surrogate variables (num.sv): PC_1 through PC_21
+Saved variance explained plot: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only/Variance_Explained_Top20_PCs.pdf
+[getMEtraitCor] Testing associations between module eigennodes and sample traits using pearson correlation
+[getMEtraitCor] Saving file as /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only/PC_Trait_Correlation_Stats_Pearson.tsv
+Warning message:
+In pt(T, np - 2, lower.tail = FALSE) : NaNs produced
+[getMEtraitCor] Testing associations between module eigennodes and sample traits using bicor correlation
+[getMEtraitCor] Saving file as /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only/PC_Trait_Correlation_Stats_Bicor.tsv
+[plotMEtraitCor_pub] corType = cor
+[plotMEtraitCor_pub] autoSize -> width=6.00, height=5.00 (nX=21,nY=1)
+[plotMEtraitCor_pub] corType = cor
+[plotMEtraitCor_pub] autoSize -> width=6.00, height=11.00 (nX=21,nY=96)
+[plotMEtraitCor_pub] corType = cor
+[plotMEtraitCor_pub] autoSize -> width=6.00, height=10.50 (nX=21,nY=50)
+[plotTraitDendrogramFromPC] Saved: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only/Trait_Dendrogram_From_PC_Associations.pdf
+Surrogate variables identified by num.sv: 21 (PC_1 through PC_21)
+Consensus Script 04 complete: PC derivation and diagnostics finished
+PC model used for num.sv: intercept_only
+Output folder: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only
+------------------------------------------------------------
+[LATENT STRUCTURE SUMMARY]
+------------------------------------------------------------
+Samples: 173
+Selected latent factors for adjustment (num.sv): 21
+
+Returned adjustment matrix: 173 x 21 (samples x selected PCs)
+
+Variance captured by selected PCs: 22.75%
+
+Starting Script 04
+Output directory: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/protected_model
+PC model requested: protected
+Loaded methylation matrix: 465397 regions x 173 samples
+[readSampleInfo] Reading sample info: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_full_dataset_priority_numeric.xlsx
+[readSampleInfo] No sample_id_col provided; using existing rownames.
+[readSampleInfo] First 6 rownames used as sample IDs:
+Samples only in methylation: 0
+Samples only in sample_info: 0
+After alignment: 465397 regions x 173 samples
+Numeric trait columns retained for diagnostics: 121
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/protected_traits.txt
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/technical_traits.txt
+[resolveTraits] protected_traits: requested = 3, found = 1, missing = 2
+[resolveTraits] technical_traits: requested = 3, found = 0, missing = 3
+PC model selected: protected
+Using protected traits in SVA model matrix: F1.Black.race
+[getPCs_generic] Determining number of PCs using sva::num.sv
+[getPCs_generic] num.sv selected 33 PCs as surrogate variables
+PC matrix dimensions: 173 samples x 33 PCs
+Surrogate variables (num.sv): PC_1 through PC_33
+Saved variance explained plot: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/protected_model/Variance_Explained_Top20_PCs.pdf
+[getMEtraitCor] Testing associations between module eigennodes and sample traits using pearson correlation
+[getMEtraitCor] Saving file as /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/protected_model/PC_Trait_Correlation_Stats_Pearson.tsv
+Warning message:
+In pt(T, np - 2, lower.tail = FALSE) : NaNs produced
+[getMEtraitCor] Testing associations between module eigennodes and sample traits using bicor correlation
+[getMEtraitCor] Saving file as /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/protected_model/PC_Trait_Correlation_Stats_Bicor.tsv
+[plotMEtraitCor_pub] corType = cor
+[plotMEtraitCor_pub] autoSize -> width=7.78, height=5.00 (nX=33,nY=1)
+[plotMEtraitCor_pub] corType = cor
+[plotMEtraitCor_pub] autoSize -> width=7.62, height=11.00 (nX=32,nY=99)
+[plotMEtraitCor_pub] corType = cor
+[plotMEtraitCor_pub] autoSize -> width=7.78, height=10.50 (nX=33,nY=50)
+[plotTraitDendrogramFromPC] Saved: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/protected_model/Trait_Dendrogram_From_PC_Associations.pdf
+Surrogate variables identified by num.sv: 33 (PC_1 through PC_33)
+Consensus Script 04 complete: PC derivation and diagnostics finished
+PC model used for num.sv: protected
+Output folder: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/protected_model
+------------------------------------------------------------
+[LATENT STRUCTURE SUMMARY]
+------------------------------------------------------------
+Samples: 173
+Selected latent factors for adjustment (num.sv): 33
+
+Returned adjustment matrix: 173 x 33 (samples x selected PCs)
+
+Variance captured by selected PCs: 29.76%
+
+Starting Script 05
+Output directory: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/05_methylation_adjustment/cov3_75pct/covMin10_methSD0p07
+After alignment: meth = 465397 regions x 173 samples; PCs = 173 samples x 21 PCs
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/protected_traits.txt
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/technical_traits.txt
+[resolveTraits] protected_traits: requested = 3, found = 1, missing = 2
+[resolveTraits] technical_traits: requested = 3, found = 0, missing = 3
+[adjustRegionMeth] Adjusting region methylation for the top principal components
+[2026-10-26T17:07:55.107] error: *** JOB 25154828 ON hive-dc-7-4-42 CANCELLED AT 2026-10-26T17:07:55 DUE to SIGNAL Terminated ***
+Starting Script 04
+Output directory: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only
+PC model requested: intercept_only
+Loaded methylation matrix: 465397 regions x 173 samples
+[readSampleInfo] Reading sample info: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_full_dataset_priority_numeric.xlsx
+[readSampleInfo] No sample_id_col provided; using existing rownames.
+[readSampleInfo] First 6 rownames used as sample IDs:
+Samples only in methylation: 0
+Samples only in sample_info: 0
+After alignment: 465397 regions x 173 samples
+Numeric trait columns retained for diagnostics: 121
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/protected_traits.txt
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/technical_traits.txt
+[resolveTraits] protected_traits: requested = 3, found = 1, missing = 1
+[resolveTraits] Missing protected_traits: black_race
+[resolveTraits] technical_traits: requested = 3, found = 0, missing = 3
+[resolveTraits] Missing technical_traits: Percent_Duplicated_Reads, Percent_Aligned_Total, Total_Reads
+PC model selected: intercept_only
+Using intercept-only model for sva::num.sv
+[getPCs_generic] Determining number of PCs using sva::num.sv
+[2026-10-26T17:10:10.557] error: *** JOB 25154942 ON hive-dc-7-4-42 CANCELLED AT 2026-10-26T17:10:10 DUE to SIGNAL Terminated ***
+Starting Script 04
+Output directory: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only
+PC model requested: intercept_only
+Loaded methylation matrix: 465397 regions x 173 samples
+[readSampleInfo] Reading sample info: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_full_dataset_priority_numeric.xlsx
+[readSampleInfo] No sample_id_col provided; using existing rownames.
+[readSampleInfo] First 6 rownames used as sample IDs:
+Samples only in methylation: 0
+Samples only in sample_info: 0
+After alignment: 465397 regions x 173 samples
+Numeric trait columns retained for diagnostics: 121
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/protected_traits.txt
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/technical_traits.txt
+[resolveTraits] protected_traits: requested = 3, found = 1, missing = 1
+[resolveTraits] Missing protected_traits: black_race
+[resolveTraits] technical_traits: requested = 3, found = 0, missing = 3
+[resolveTraits] Missing technical_traits: Percent_Duplicated_Reads, Percent_Aligned_Total, Total_Reads
+PC model selected: intercept_only
+Using intercept-only model for sva::num.sv
+[getPCs_generic] Determining number of PCs using sva::num.sv
+Starting Script 04
+Output directory: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only
+PC model requested: intercept_only
+Loaded methylation matrix: 465397 regions x 173 samples
+[readSampleInfo] Reading sample info: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_full_dataset_priority_numeric.xlsx
+[readSampleInfo] No sample_id_col provided; using existing rownames.
+[readSampleInfo] First 6 rownames used as sample IDs:
+Samples only in methylation: 0
+Samples only in sample_info: 0
+After alignment: 465397 regions x 173 samples
+Numeric trait columns retained for diagnostics: 121
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/protected_traits.txt
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/technical_traits.txt
+[resolveTraits] protected_traits: requested = 3, found = 1, missing = 1
+[resolveTraits] Missing protected_traits: black_race
+[resolveTraits] technical_traits: requested = 3, found = 0, missing = 3
+[resolveTraits] Missing technical_traits: Percent_Duplicated_Reads, Percent_Aligned_Total, Total_Reads
+PC model selected: intercept_only
+Using intercept-only model for sva::num.sv
+[getPCs_generic] Determining number of PCs using sva::num.sv
+Starting Script 04
+Output directory: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/protected_model
+PC model requested: protected
+Loaded methylation matrix: 465397 regions x 173 samples
+[readSampleInfo] Reading sample info: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_full_dataset_priority_numeric.xlsx
+[readSampleInfo] No sample_id_col provided; using existing rownames.
+[readSampleInfo] First 6 rownames used as sample IDs:
+Samples only in methylation: 0
+Samples only in sample_info: 0
+After alignment: 465397 regions x 173 samples
+Numeric trait columns retained for diagnostics: 121
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/protected_traits.txt
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/technical_traits.txt
+[resolveTraits] protected_traits: requested = 3, found = 1, missing = 1
+[resolveTraits] Missing protected_traits: black_race
+[resolveTraits] technical_traits: requested = 3, found = 0, missing = 3
+[resolveTraits] Missing technical_traits: Percent_Duplicated_Reads, Percent_Aligned_Total, Total_Reads
+PC model selected: protected
+Using protected traits in SVA model matrix: F1 Black race
+[getPCs_generic] Determining number of PCs using sva::num.sv
+Starting Script 04
+Output directory: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/protected_model
+PC model requested: protected
+Loaded methylation matrix: 465397 regions x 173 samples
+[readSampleInfo] Reading sample info: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_full_dataset_priority_numeric.xlsx
+[readSampleInfo] No sample_id_col provided; using existing rownames.
+[readSampleInfo] First 6 rownames used as sample IDs:
+Samples only in methylation: 0
+Samples only in sample_info: 0
+After alignment: 465397 regions x 173 samples
+Numeric trait columns retained for diagnostics: 121
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/protected_traits.txt
+[readTraitFile] Loaded 3 traits from: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/technical_traits.txt
+[resolveTraits] protected_traits: requested = 3, found = 1, missing = 1
+[resolveTraits] Missing protected_traits: black_race
+[resolveTraits] technical_traits: requested = 3, found = 0, missing = 3
+[resolveTraits] Missing technical_traits: Percent_Duplicated_Reads, Percent_Aligned_Total, Total_Reads
+PC model selected: protected
+Using protected traits in SVA model matrix: F1 Black race
+[getPCs_generic] Determining number of PCs using sva::num.sv
+[getPCs_generic] num.sv selected 33 PCs as surrogate variables
+PC matrix dimensions: 173 samples x 33 PCs
+Surrogate variables (num.sv): PC_1 through PC_33
+Saved variance explained plot: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/protected_model/Variance_Explained_Top20_PCs.pdf
+[getMEtraitCor] Testing associations between module eigennodes and sample traits using pearson correlation
+[getMEtraitCor] Saving file as /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/protected_model/PC_Trait_Correlation_Stats_Pearson.tsv
+Warning message:
+In pt(T, np - 2, lower.tail = FALSE) : NaNs produced
+[getMEtraitCor] Testing associations between module eigennodes and sample traits using bicor correlation
+[getMEtraitCor] Saving file as /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/protected_model/PC_Trait_Correlation_Stats_Bicor.tsv
+[plotMEtraitCor_pub] corType = bicor
+[plotMEtraitCor_pub] autoSize -> width=7.78, height=5.00 (nX=33,nY=1)
+[plotMEtraitCor_pub] corType = bicor
+[plotMEtraitCor_pub] autoSize -> width=7.78, height=11.00 (nX=33,nY=88)
+[plotMEtraitCor_pub] corType = bicor
+[plotMEtraitCor_pub] autoSize -> width=7.78, height=10.50 (nX=33,nY=50)
+[plotTraitDendrogramFromPC] Saved: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/protected_model/Trait_Dendrogram_From_PC_Associations.pdf
+Surrogate variables identified by num.sv: 33 (PC_1 through PC_33)
+Consensus Script 04 complete: PC derivation and diagnostics finished
+PC model used for num.sv: protected
+Output folder: /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/protected_model
+------------------------------------------------------------
+[LATENT STRUCTURE SUMMARY]
+------------------------------------------------------------
+Samples: 173
+Selected latent factors for adjustment (num.sv): 33
+
+Returned adjustment matrix: 173 x 33 (samples x selected PCs)
+
+Variance captured by selected PCs: 29.76%
+

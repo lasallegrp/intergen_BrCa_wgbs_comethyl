@@ -8,8 +8,8 @@ F1 overweight
 F1 age at menarche
 F1 early menarche
 F1 late menarche
-Breast cancer: F1
-Breast cancer: F0
+F1 Breast cancer
+F0 Breast cancer
 
 # ── Chemical exposures ─────────────────────────────────────────
 DDT

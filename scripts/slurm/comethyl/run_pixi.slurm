@@ -99,51 +99,51 @@ cd /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/rep
 # #   --threads 4
 
 
-# # Script 04
-# #v1
-# pixi run Rscript /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/scripts/comethyl_scripts/04_pcs_and_trait_diagnostics.R \
-#   --project_root /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George \
-#   --input_meth /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/comethyl_output/03_region_methylation/cov4_85pct/covMin6_methSD0p05/Region_Methylation.rds \
-#   --sample_info /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/data/metadata/CHDS_CHARGE_combined_010926.xlsx \
-#   --protected_traits_file /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/config/protected_traits.txt \
-#   --technical_traits_file /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/config/technical_traits.txt \
-#   --pc_model intercept_only \
-#   --primary_cor_method pearson \
-#   --threads 4
+# Script 04
+#v1
+pixi run Rscript /quobyte/lasallegrp/projects/CHDS/WGBS/intergen_7b5ab0b/scripts/comethyl_scripts/04_pcs_and_trait_diagnostics.R \
+  --project_root /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George \
+  --input_meth /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/03_region_methylation/cov3_75pct/covMin10_methSD0p07/Region_Methylation.rds \
+  --sample_info /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_full_dataset_priority_numeric.xlsx \
+  --protected_traits_file /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/protected_traits.txt \
+  --technical_traits_file /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/technical_traits.txt \
+  --pc_model intercept_only \
+  --primary_cor_method bicor \
+  --threads 4
 
-# #v2
-# pixi run Rscript /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/scripts/comethyl_scripts/04_pcs_and_trait_diagnostics.R \
-#   --project_root /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George \
-#   --input_meth /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/comethyl_output/03_region_methylation/cov4_85pct/covMin6_methSD0p05/Region_Methylation.rds \
-#   --sample_info /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/data/metadata/CHDS_CHARGE_combined_010926.xlsx \
-#   --protected_traits_file /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/config/protected_traits.txt \
-#   --technical_traits_file /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/config/technical_traits.txt \
-#   --pc_model protected \
-#   --primary_cor_method pearson \
-#   --threads 4
+#v2
+pixi run Rscript /quobyte/lasallegrp/projects/CHDS/WGBS/intergen_7b5ab0b/scripts/comethyl_scripts/04_pcs_and_trait_diagnostics.R \
+  --project_root /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George \
+  --input_meth /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/03_region_methylation/cov3_75pct/covMin10_methSD0p07/Region_Methylation.rds \
+  --sample_info /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_full_dataset_priority_numeric.xlsx \
+  --protected_traits_file /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/protected_traits.txt \
+  --technical_traits_file /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/technical_traits.txt \
+  --pc_model protected \
+  --primary_cor_method bicor \
+  --threads 4
  
 # #old version
-# # pixi run Rscript /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/scripts/comethyl_scripts/04_pcs_and_trait_diagnostics.R \
-# #   --project_root /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George \
-# #   --input_meth /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/comethyl_output/03_region_methylation/cov4_85pct/covMin6_methSD0p05/Region_Methylation.rds \
-# #   --sample_info /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/data/metadata/CHDS_CHARGE_combined_010926.xlsx \
-# #   --protected_traits_file /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/config/protected_traits.txt \
-# #   --technical_traits_file /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/config/technical_traits.txt \
+# # pixi run Rscript /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/scripts/comethyl_scripts/04_pcs_and_trait_diagnostics.R \
+# #   --project_root /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George \
+# #   --input_meth /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/03_region_methylation/cov3_75pct/covMin10_methSD0p07/Region_Methylation.rds \
+# #   --sample_info /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_full_dataset_priority_numeric.xlsx \
+# #   --protected_traits_file /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/protected_traits.txt \
+# #   --technical_traits_file /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/technical_traits.txt \
 # #   --primary_cor_method bicor \
 # #   --threads 4
 
-# # Script 05 bicor
-# # Script 05A: v1 original comethyl-style adjustment
-# # PC derivation = intercept_only
-# # Adjustment = all selected PCs
+# Script 05 bicor
+# Script 05A: v1 original comethyl-style adjustment
+# PC derivation = intercept_only
+# Adjustment = all selected PCs
 
-# pixi run Rscript /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/scripts/comethyl_scripts/05_adjust_region_methylation.R \
-#   --project_root /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George \
-#   --input_meth /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/comethyl_output/03_region_methylation/cov4_85pct/covMin6_methSD0p05/Region_Methylation.rds \
-#   --input_pcs /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/comethyl_output/04_pc_diagnostics/cov4_85pct/covMin6_methSD0p05/intercept_only/PCs.rds \
-#   --pc_trait_stats /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/comethyl_output/04_pc_diagnostics/cov4_85pct/covMin6_methSD0p05/intercept_only/PC_Trait_Correlation_Stats_Bicor.tsv \
-#   --protected_traits_file /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/config/protected_traits.txt \
-#   --technical_traits_file /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/config/technical_traits.txt \
+# pixi run Rscript /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/scripts/comethyl_scripts/05_adjust_region_methylation.R \
+#   --project_root /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George \
+#   --input_meth /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/03_region_methylation/cov3_75pct/covMin10_methSD0p07/Region_Methylation.rds \
+#   --input_pcs /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only/PCs.rds \
+#   --pc_trait_stats /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/intercept_only/PC_Trait_Correlation_Stats_Bicor.tsv \
+#   --protected_traits_file /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/protected_traits.txt \
+#   --technical_traits_file /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/technical_traits.txt \
 #   --run_v1 TRUE \
 #   --run_v2 FALSE \
 #   --run_v3 FALSE \
@@ -155,13 +155,13 @@ cd /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/rep
 # # PC derivation = protected_model
 # # Adjustment = exclude protected-associated PCs, then adjust remaining PCs
 
-# pixi run Rscript /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/scripts/comethyl_scripts/05_adjust_region_methylation.R \
-#   --project_root /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George \
-#   --input_meth /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/comethyl_output/03_region_methylation/cov4_85pct/covMin6_methSD0p05/Region_Methylation.rds \
-#   --input_pcs /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/comethyl_output/04_pc_diagnostics/cov4_85pct/covMin6_methSD0p05/protected_model/PCs.rds \
-#   --pc_trait_stats /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/comethyl_output/04_pc_diagnostics/cov4_85pct/covMin6_methSD0p05/protected_model/PC_Trait_Correlation_Stats_Bicor.tsv \
-#   --protected_traits_file /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/config/protected_traits.txt \
-#   --technical_traits_file /quobyte/lasallegrp/projects/CHARGE/WGBS/2025_NDBS_ASD_Comethyl_George/config/technical_traits.txt \
+# pixi run Rscript /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/scripts/comethyl_scripts/05_adjust_region_methylation.R \
+#   --project_root /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George \
+#   --input_meth /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/03_region_methylation/cov3_75pct/covMin10_methSD0p07/Region_Methylation.rds \
+#   --input_pcs /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/protected_model/PCs.rds \
+#   --pc_trait_stats /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/protected_model/PC_Trait_Correlation_Stats_Bicor.tsv \
+#   --protected_traits_file /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/protected_traits.txt \
+#   --technical_traits_file /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/technical_traits.txt \
 #   --run_v1 FALSE \
 #   --run_v2 TRUE \
 #   --run_v3 FALSE \
@@ -171,19 +171,19 @@ cd /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/rep
 
 
 
-# # Script 05
-# pixi run Rscript /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/scripts/comethyl_scripts/05_adjust_region_methylation.R \
-#   --project_root /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George \
-#   --input_meth /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/03_region_methylation/cov3_75pct/covMin10_methSD0p07/Region_Methylation.rds \
-#   --input_pcs /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/PCs.rds \
-#   --pc_trait_stats /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/PC_Trait_Correlation_Stats_Bicor.tsv \
-#   --protected_traits_file /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/protected_traits.txt \
-#   --technical_traits_file /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/technical_traits.txt \
-#   --run_v1 TRUE \
-#   --run_v2 TRUE \
-#   --run_v3 FALSE \
-#   --v2_cor_method bicor \
-#   --v2_p_thresh 0.05
+# # # Script 05
+# # pixi run Rscript /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/scripts/comethyl_scripts/05_adjust_region_methylation.R \
+# #   --project_root /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George \
+# #   --input_meth /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/03_region_methylation/cov3_75pct/covMin10_methSD0p07/Region_Methylation.rds \
+# #   --input_pcs /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/PCs.rds \
+# #   --pc_trait_stats /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/04_pc_diagnostics/cov3_75pct/covMin10_methSD0p07/PC_Trait_Correlation_Stats_Bicor.tsv \
+# #   --protected_traits_file /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/protected_traits.txt \
+# #   --technical_traits_file /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/technical_traits.txt \
+# #   --run_v1 TRUE \
+# #   --run_v2 TRUE \
+# #   --run_v3 FALSE \
+# #   --v2_cor_method bicor \
+# #   --v2_p_thresh 0.05
 
 # # Script 06
 # pixi run Rscript /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/scripts/comethyl_scripts/06_soft_power.R \
@@ -223,7 +223,7 @@ cd /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/rep
 #script 09a
 pixi run Rscript /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/scripts/comethyl_scripts/09a_me_trait_analysis.R \
   --project_root /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George \
-  --sample_info /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_publication_labels.xlsx \
+  --sample_info /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/numeric_conversion_check/Intergen173_070702026_full_dataset_priority_numeric.xlsx \
   --modules_v1 /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/08_module_and_sample_diagnostics/cov3_75pct/covMin10_methSD0p07/v1_all_pcs/Modules_for_downstream.rds \
   --modules_v2 /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/08_module_and_sample_diagnostics/cov3_75pct/covMin10_methSD0p07/v2_exclude_protected_pcs/Modules_for_downstream.rds \
   --run_bicor TRUE \
@@ -269,34 +269,34 @@ pixi run Rscript /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comet
 #   --counts_height 6
 
 
-# #Script 11
-#v1
-pixi run Rscript /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/scripts/comethyl_scripts/11_me_trait_pair_plots.R \
-  --project_root /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George \
-  --modules_rds /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/08_module_and_sample_diagnostics/cov3_75pct/covMin10_methSD0p07/v1_all_pcs/Modules_for_downstream.rds \
-  --stats_file /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/09a_me_trait_analysis/cov3_75pct/covMin10_methSD0p07/v1_all_pcs/ME_Trait_Correlation_Stats_Bicor.tsv \
-  --sample_info /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_publication_labels.xlsx\
-  --set_dir /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/presentation_sets \
-  --p_thresh 0.05 \
-  --only_significant TRUE \
-  --cat_plot_style violin \
-  --top_n_pairs 50
+# # #Script 11
+# #v1
+# pixi run Rscript /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/scripts/comethyl_scripts/11_me_trait_pair_plots.R \
+#   --project_root /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George \
+#   --modules_rds /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/08_module_and_sample_diagnostics/cov3_75pct/covMin10_methSD0p07/v1_all_pcs/Modules_for_downstream.rds \
+#   --stats_file /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/09a_me_trait_analysis/cov3_75pct/covMin10_methSD0p07/v1_all_pcs/ME_Trait_Correlation_Stats_Bicor.tsv \
+#   --sample_info /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_publication_labels.xlsx\
+#   --set_dir /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/presentation_sets \
+#   --p_thresh 0.05 \
+#   --only_significant TRUE \
+#   --cat_plot_style violin \
+#   --top_n_pairs 50
 
-#v2
-pixi run Rscript /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/scripts/comethyl_scripts/11_me_trait_pair_plots.R \
-  --project_root /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George \
-  --modules_rds /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/08_module_and_sample_diagnostics/cov3_75pct/covMin10_methSD0p07/v2_exclude_protected_pcs/Modules_for_downstream.rds \
-  --stats_file /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/09a_me_trait_analysis/cov3_75pct/covMin10_methSD0p07/v2_exclude_protected_pcs/ME_Trait_Correlation_Stats_Bicor.tsv \
-  --sample_info /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_publication_labels.xlsx\
-  --set_dir /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/presentation_sets \
-  --p_thresh 0.05 \
-  --only_significant TRUE \
-  --cat_plot_style violin \
-  --continuous_width 8 \
-  --continuous_height 7 \
-  --categorical_width 8 \
-  --categorical_height 7 \
-  --top_n_pairs 50
+# #v2
+# pixi run Rscript /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/scripts/comethyl_scripts/11_me_trait_pair_plots.R \
+#   --project_root /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George \
+#   --modules_rds /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/08_module_and_sample_diagnostics/cov3_75pct/covMin10_methSD0p07/v2_exclude_protected_pcs/Modules_for_downstream.rds \
+#   --stats_file /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/comethyl_output/09a_me_trait_analysis/cov3_75pct/covMin10_methSD0p07/v2_exclude_protected_pcs/ME_Trait_Correlation_Stats_Bicor.tsv \
+#   --sample_info /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata/Intergen173_05222026_publication_labels.xlsx \
+#   --set_dir /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/config/presentation_sets \
+#   --p_thresh 0.05 \
+#   --only_significant TRUE \
+#   --cat_plot_style violin \
+#   --continuous_width 8 \
+#   --continuous_height 7 \
+#   --categorical_width 8 \
+#   --categorical_height 7 \
+#   --top_n_pairs 50
 
 # #script 12a
 # pixi run Rscript /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/scripts/comethyl_scripts/12a_annotate_modules.R \
