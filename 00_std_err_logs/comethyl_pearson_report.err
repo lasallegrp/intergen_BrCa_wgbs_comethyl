@@ -23580,3 +23580,13 @@ Returned adjustment matrix: 173 x 33 (samples x selected PCs)
 
 Variance captured by selected PCs: 29.76%
 
+[14:18:49] Found 173 CpG reports.
+[14:18:49] Reference CpGs: EpiDISH=333, IDOL=450, union=770
+[14:19:44] Reference CpGs with coordinates: 770 (EpiDISH 333, IDOL 450)
+[14:19:45] Reading reports with 14 worker(s)...
+[14:27:34] Median recovered reference CpGs/sample: EpiDISH 296/333, IDOL 393/450
+[14:27:34] EpiDISH RPC: 273 reference CpGs usable after NA filter
+[14:27:40] IDOL Houseman CP: 340 reference CpGs usable after NA filter
+Setting options('download.file.method.GEOquery'='auto')
+Setting options('GEOquery.inmemory.gpl'=FALSE)
+[14:28:21] Done. Outputs in /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/results/cell_composition_chr22

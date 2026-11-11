@@ -1,3 +1,2 @@
-F1.Black.race
 black_race
 F1 Black race

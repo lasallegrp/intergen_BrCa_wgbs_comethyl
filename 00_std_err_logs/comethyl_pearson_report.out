@@ -9954,4 +9954,125 @@ JobId=25155018 JobName=Cometh_Intergen_CHDS
    StdIn=/dev/null
    StdOut=/quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/00_std_err_logs/comethyl_pearson_report.out
    TresPerTask=cpu=14
+   MailUser=gekuodza@health.ucdavis.edu MailType=INVALID_DEPEND,BEGIN,END,FAIL,REQUEUE,STAGE_OUThive-dc-7-9-63
+Tue Nov 10 02:18:32 PM PST 2026
+     cell pearson_r spearman_rho mean_abs_diff mean_epidish  mean_idol
+   <char>     <num>        <num>         <num>        <num>      <num>
+1:  Bcell 0.7071887    0.6648284    0.04402802   0.02958877 0.07360062
+2:   CD4T 0.7127453    0.6818271    0.06536092   0.10301276 0.16041387
+3:   CD8T 0.5659640    0.5271471    0.07406830   0.12711007 0.06334114
+4:   Mono 0.5301298    0.4513529    0.02443090   0.11589369 0.10767603
+5:     NK 0.4693415    0.3887375    0.02549331   0.02400886 0.03141129
+6:    Neu 0.9276796    0.9348262    0.04710454   0.59746256 0.56355705
+Run completed in 590 seconds
+Tue Nov 10 02:28:22 PM PST 2026
+
+############### Job 25615235 summary from  ###############
+Name                : Decon_Intergen_CHDS
+User                : gekuodza
+Account             : lasallegrp
+Partition           : high
+Nodes               : hive-dc-7-9-63
+Cores               : 14
+GPUs                : 0
+State               : COMPLETED
+ExitCode            : 0:0
+Submit              : 2026-11-10T14:18:31
+Start               : 2026-11-10T14:18:32
+End                 : 2026-11-10T14:28:22
+Reserved walltime   : 23:00:00
+Used walltime       : 00:09:50
+Used CPU time       : 01:35:43
+% User (Computation): 86.59%
+% System (I/O)      : 13.40%
+Mem reserved        : 250G
+Max Mem used        : 101.90G (hive-dc-7-9-63)
+Max Disk Write      : 282.61G (hive-dc-7-9-63)
+Max Disk Read       : 46.17G (hive-dc-7-9-63)
+
+############### Job 25615235 info ###############
+JobId=25615235 JobName=Decon_Intergen_CHDS
+   UserId=gekuodza(2224567) GroupId=gekuodza(2224567) MCS_label=N/A
+   Priority=79859 Nice=0 Account=lasallegrp QOS=lasallegrp-high-qos
+   JobState=COMPLETING Reason=None Dependency=(null)
+   Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
+   RunTime=00:09:50 TimeLimit=23:00:00 TimeMin=N/A
+   SubmitTime=2026-11-10T14:18:31 EligibleTime=2026-11-10T14:18:31
+   AccrueTime=2026-11-10T14:18:31
+   StartTime=2026-11-10T14:18:32 EndTime=2026-11-10T14:28:22 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-11-10T14:18:32 Scheduler=Main
+   Partition=high AllocNode:Sid=hive-dc-7-6-30:1932275
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=hive-dc-7-9-63
+   BatchHost=hive-dc-7-9-63
+   NumNodes=1 NumCPUs=14 NumTasks=1 CPUs/Task=14 ReqB:S:C:T=0:0:*:*
+   ReqTRES=cpu=14,mem=250G,node=1,billing=78
+   AllocTRES=cpu=14,mem=250G,node=1,billing=78
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=14 MinMemoryNode=250G MinTmpDiskNode=0
+   Features=(null) DelayBoot=00:00:00
+   OverSubscribe=OK Exclusive=NO Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null)
+   Command=/quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/scripts/slurm/cell_deconv/run_pixi.slurm
+   SubmitLine=sbatch /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/scripts/slurm/cell_deconv/run_pixi.slurm
+   WorkDir=/quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George
+   StdErr=/quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/00_std_err_logs/comethyl_pearson_report.err
+   StdIn=/dev/null
+   StdOut=/quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/00_std_err_logs/comethyl_pearson_report.out
+   TresPerTask=cpu=14
+   MailUser=gekuodza@health.ucdavis.edu MailType=INVALID_DEPEND,BEGIN,END,FAIL,REQUEUE,STAGE_OUThive-dc-7-5-30
+Tue Nov 10 03:59:42 PM PST 2026
+Fatal error: cannot open file '/quobyte/lasallegrp/projects/CHDS/WGBS/intergen_7b5ab0b/scripts/comethyl_scripts/04_pcs_and_trait_diagnostics.R': No such file or directory
+
+############### Job 25618554 summary from  ###############
+Name                : Cometh_Intergen_CHDS
+User                : gekuodza
+Account             : genome-center-grp
+Partition           : high
+Nodes               : hive-dc-7-5-30
+Cores               : 14
+GPUs                : 0
+State               : FAILED
+ExitCode            : 2:0
+Submit              : 2026-11-10T15:59:40
+Start               : 2026-11-10T15:59:42
+End                 : 2026-11-10T15:59:56
+Reserved walltime   : 23:00:00
+Used walltime       : 00:00:14
+Used CPU time       : 00:00:03
+% User (Computation): 80.59%
+% System (I/O)      :  0.00%
+Mem reserved        : 250G
+Max Mem used        : 212.80M (hive-dc-7-5-30)
+Max Disk Write      : 0.00  (hive-dc-7-5-30)
+Max Disk Read       : 0.00  (hive-dc-7-5-30)
+
+############### Job 25618554 info ###############
+JobId=25618554 JobName=Cometh_Intergen_CHDS
+   UserId=gekuodza(2224567) GroupId=gekuodza(2224567) MCS_label=N/A
+   Priority=65449 Nice=0 Account=genome-center-grp QOS=genome-center-grp-high-qos
+   JobState=COMPLETING Reason=NonZeroExitCode Dependency=(null)
+   Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=2:0
+   RunTime=00:00:14 TimeLimit=23:00:00 TimeMin=N/A
+   SubmitTime=2026-11-10T15:59:40 EligibleTime=2026-11-10T15:59:40
+   AccrueTime=2026-11-10T15:59:40
+   StartTime=2026-11-10T15:59:42 EndTime=2026-11-10T15:59:56 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-11-10T15:59:42 Scheduler=Main
+   Partition=high AllocNode:Sid=hive-dc-7-6-30:1932275
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=hive-dc-7-5-30
+   BatchHost=hive-dc-7-5-30
+   NumNodes=1 NumCPUs=14 NumTasks=1 CPUs/Task=14 ReqB:S:C:T=0:0:*:*
+   ReqTRES=cpu=14,mem=250G,node=1,billing=78
+   AllocTRES=cpu=14,mem=250G,node=1,billing=78
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=14 MinMemoryNode=250G MinTmpDiskNode=0
+   Features=(null) DelayBoot=00:00:00
+   OverSubscribe=OK Exclusive=NO Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null)
+   Command=/quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/scripts/slurm/comethyl/run_pixi.slurm
+   SubmitLine=sbatch /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/scripts/slurm/comethyl/run_pixi.slurm
+   WorkDir=/quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George
+   StdErr=/quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/00_std_err_logs/comethyl_pearson_report.err
+   StdIn=/dev/null
+   StdOut=/quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/00_std_err_logs/comethyl_pearson_report.out
+   TresPerTask=cpu=14
    MailUser=gekuodza@health.ucdavis.edu MailType=INVALID_DEPEND,BEGIN,END,FAIL,REQUEUE,STAGE_OUT

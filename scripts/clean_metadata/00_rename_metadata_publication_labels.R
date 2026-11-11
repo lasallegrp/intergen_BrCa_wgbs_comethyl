@@ -13,6 +13,13 @@
 #   --output_path /path/Intergen173_070702026_publication_labels.xlsx \
 #   --dictionary_path "/path/Data Dictionary for Intergen Class File.xlsx" \
 #   --dictionary_output_path /path/Intergen173_070702026_DataDictionary_publication_labels.xlsx
+
+  #  META=/quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/data/metadata
+
+  #  pixi run Rscript /quobyte/lasallegrp/projects/CHDS/WGBS/2025_intergen_BrCa_comethyl_George/scripts/clean_metadata/00_rename_metadata_publication_labels.R \
+  #    --input_path  $META/Intergen173_full_dataset_priority_numeric_with_IDOL_cellprop.xlsx \
+  #    --output_path $META/Intergen173_full_dataset_priority_numeric_with_IDOL_publication_labels.xlsx \
+  #    --dictionary_output_path $META/Intergen173_DataDictionary_with_IDOL_publication_labels.xlsx
 # ==============================================================================
 
 suppressPackageStartupMessages(library(openxlsx))
@@ -207,6 +214,15 @@ rename_map <- c(
   "AL_PBF" = "F1 Allostatic load: high body fat",
   "AL_WC" = "F1 Allostatic load: high waist circumference",
 
+  # IDOL cell type proportions
+  "IDOL_Neu"     = "Neutrophils",
+  "IDOL_CD4T"    = "CD4+ T cells",
+  "IDOL_CD8T"    = "CD8+ T cells",
+  "IDOL_Bcell"   = "B cells",
+  "IDOL_NK"      = "NK cells",
+  "IDOL_Mono"    = "Monocytes",
+  "IDOL_log_NLR" = "log NLR",
+
   # Midlife cardiometabolic biomarkers
   "hsCRP" = "F1 hsCRP",
   "DHEAS" = "F1 DHEA-S",
@@ -226,7 +242,7 @@ rename_map <- c(
 # Read metadata. The first Excel column is the participant identifier / row name.
 # -----------------------------------------------------------------------------
 message("Reading metadata: ", input_path)
-metadata <- read.xlsx(input_path, rowNames = TRUE, check.names = FALSE)
+metadata <- read.xlsx(input_path, rowNames = TRUE, check.names = FALSE, sep.names = " ")
 original_names <- colnames(metadata)
 
 missing_from_map <- setdiff(original_names, names(rename_map))
